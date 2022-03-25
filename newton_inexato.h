@@ -1,0 +1,4 @@
+#ifndef NEWTON_INEXATO_H
+#define NEWTON_INEXATO_H
+
+#endif // NEWTON_INEXATO_H
