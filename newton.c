@@ -99,7 +99,7 @@ void destroi_iteracao(iteracao *iter)
 
 static double norma(double *X, int n)
 {
-    double max = X[0];
+    double max = fabs(X[0]);
     for (int i = 1; i < n; i++)
     {
         if (fabs(X[i]) > max)
