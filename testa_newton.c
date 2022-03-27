@@ -46,11 +46,14 @@ void testa_criar_iteracao()
 void testa_newton_padrao_sla()
 {
     double chute[] = {0.1};
-    iteracao *iter = criar_iteracao(FUNCAO_TESTE, 1, chute, 0.0001, 40);
+    int num_vars = 1;
+    iteracao *iter = criar_iteracao(FUNCAO_TESTE, num_vars, chute, 0.0001, 40);
 
     while (true)
     {
         printf("%d\n", iter->i);
+        // debug_print("%lg", evaluator_evaluate(iter->f_evaluator, num_vars, iter->nomes_vars, iter->X));
+        debug_print("%d", iter->n);
 
         for (int i = 0; i < iter->n; i++)
         {
@@ -63,8 +66,30 @@ void testa_newton_padrao_sla()
     }
 }
 
+void testa_newton_modificado_sla() {
+    double chute[] = {0.1};
+    int num_vars = 1;
+    iteracao *iter = criar_iteracao(FUNCAO_TESTE, num_vars, chute, 0.0001, 40);
+
+    while (true)
+    {
+        printf("%d\n", iter->i);
+        debug_print("%lg", evaluator_evaluate(iter->f_evaluator, num_vars, iter->nomes_vars, iter->X));
+
+        for (int i = 0; i < iter->n; i++)
+        {
+            printf("X[%d] 8===D %g \n", i, iter->X[i]);
+        }
+
+        getchar();
+
+        iterar_newton_modificado(iter);
+    }    
+}
+
 int main(void)
 {
     // testa_criar_iteracao();
     testa_newton_padrao_sla();
+    // testa_newton_modificado_sla();
 }

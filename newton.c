@@ -57,14 +57,17 @@ iteracao *criar_iteracao(char *f_str, int n, double *chute_inicial, double epsil
     calcula_gradiente_para_iteracao(iter);
     calcula_hessiana_para_iteracao(iter);
 
-    iter->L = (double **)cria_matriz(sizeof(double), n);
-    iter->U = (double **)cria_matriz(sizeof(double), n);
+    iter->hessiana_evaluada = (double **) cria_matriz(sizeof(double), n);
+
+    iter->L = (double **) cria_matriz(sizeof(double), n);
+    iter->U = (double **) cria_matriz(sizeof(double), n);
 
     iter->X = chute_inicial;
     iter->hess_steps = n;
     iter->epsilon = epsilon;
     iter->max_iteracoes = max_iteracoes;
     iter->acabou = false;
+    iter->trocas = cria_vetor(sizeof(int), n);
 }
 
 void destroi_iteracao(iteracao *iter)
@@ -132,6 +135,7 @@ iteracao *iterar_newton_padrao(iteracao *iter)
         return;
     }
 
+    // TODO: hessiana_evaluada => iter->hessiana_evaluada
     double **hessiana_evaluada = (double **)cria_matriz(sizeof(double), iter->n);
 
     for (int i = 0; i < iter->n; i++)
@@ -167,22 +171,22 @@ iteracao *iterar_newton_padrao(iteracao *iter)
     free(delta); // B)
 }
 
-/* iteracao* iterar_newton_modificado(iteracao* iter) {
-    static double **hessiana_evaluada = NULL;
-    // static bool ok = false;
-    double* gradiente_evaluado = (double*) cria_vetor(sizeof(double), iter->n);
+iteracao* iterar_newton_modificado(iteracao* iter) {
+    double *gradiente_evaluado = (double *)cria_vetor(sizeof(double), iter->n);
 
     for (int i = 0; i < iter->n; i++)
     {
-        gradiente_evaluado[i] = evaluator_evaluate(iter->gradiente[i],
-                                                   iter->n,
-                                                   iter->nomes_vars,
-                                                   iter->X);
+        gradiente_evaluado[i] = -evaluator_evaluate(iter->gradiente[i],
+                                                    iter->n,
+                                                    iter->nomes_vars,
+                                                    iter->X);
+        debug_print("%f ", gradiente_evaluado[i]);
     }
 
     double norma_evaluada = norma(gradiente_evaluado, iter->n);
 
-    if (norma_evaluada < iter->epsilon) {
+    if (norma_evaluada < iter->epsilon)
+    {
         free(gradiente_evaluado);
         iter->acabou = true;
         iter->i++;
@@ -190,34 +194,32 @@ iteracao *iterar_newton_padrao(iteracao *iter)
     }
 
     if(!(iter->i % iter->hess_steps)) {
-        if(!hessiana_evaluada) {
-            hessiana_evaluada = (double **) cria_matriz(sizeof(double), iter->n);
-        }
-
-        for (int i = 0; i < iter->n; i++) {
-            for (int j = 0; j < iter->n; j++) {
-                hessiana_evaluada[i][j] = evaluator_evaluate(iter->hessiana[i][j],
-                                                            iter->n,
-                                                            iter->nomes_vars,
-                                                            iter->X);
+        for (int i = 0; i < iter->n; i++)
+        {
+            for (int j = 0; j < iter->n; j++)
+            {
+                iter->hessiana_evaluada[i][j] = evaluator_evaluate(iter->hessiana[i][j],
+                                                             iter->n,
+                                                             iter->nomes_vars,
+                                                             iter->X);
+                calcula_LU(iter->L, iter->U, iter->trocas, iter->hessiana_evaluada, iter->n);
             }
         }
     }
 
-    // TDO: TA NO MEIO ISSO WTF
     iter->i++;
 
-    double *delta = resolver_sistema_LU(hessiana_evaluada, gradiente_evaluado);
+    double *delta = resolver_sistema_LU(iter->L, iter->U, gradiente_evaluado, iter->trocas, iter->n);
 
     free(gradiente_evaluado);
-    // free(hessiana_evaluada);
 
-    for (int i = 0; i < iter->n; i++) {
+    for (int i = 0; i < iter->n; i++)
+    {
         iter->X[i] += delta[i];
     }
 
-
-    if (norma(delta, iter->n) < iter->epsilon) {
+    if (norma(delta, iter->n) < iter->epsilon)
+    {
         iter->acabou = true;
         free(delta);
         return;
@@ -226,7 +228,7 @@ iteracao *iterar_newton_padrao(iteracao *iter)
     free(delta); // B)
 }
 
-iteracao* iterar_newton_inexato(iteracao* iter) {
+/* iteracao* iterar_newton_inexato(iteracao* iter) {
     double* gradiente_evaluado = (double*) cria_vetor(sizeof(double), iter->n);
 
     for (int i = 0; i < iter->n; i++)

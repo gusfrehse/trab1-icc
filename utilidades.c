@@ -57,3 +57,17 @@ void *cria_vetor(size_t size, int n)
     return calloc(n, size);
 }
 
+void mat_mult_mat_print(double **A, double **B, int n) {
+    double soma = 0;
+    
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            soma = 0;
+            for (int k = 0; k < n; k++) {
+                soma += A[i][k] * B[k][j];
+            }
+            printf("%g, ", soma);
+        }
+        printf("\n");
+    }
+}

@@ -26,7 +26,33 @@ void testa_resolver_sistema()
     print_vetor_double(X, 3);
 }
 
+void testa_LU() {
+    double A[3][3] = {
+        {25, 5, 1},
+        {64, 8, 1},
+        {144, 12 ,1}
+    };
+
+    int trocas[3];
+
+    double **M = (double**) cria_matriz(sizeof(double), 3);
+    double **L = (double**) cria_matriz(sizeof(double), 3);
+    double **U = (double**) cria_matriz(sizeof(double), 3);
+    inicializa_matriz(A, M);
+
+    calcula_LU(L, U, trocas, M, 3);
+
+    mat_mult_mat_print(L, U, 3);
+    
+    printf("trocas\n");
+    for (int i = 0; i < 3; i++) {
+        printf("%d, ", trocas[i]);
+    }
+    printf("\n");
+}
+
 void main()
 {
-    testa_resolver_sistema();
+    //testa_resolver_sistema();
+    testa_LU();
 }

@@ -14,6 +14,7 @@ static void retrossubs(double **M, double *X, double *b, int n) {
 
         if (abs(M[i][i]) < 0.01)
             debug_print("%g", M[i][i]);
+            
         X[i] /= M[i][i];
     }
 }
@@ -42,23 +43,13 @@ static void troca_linha(double **M, double *b, int n, int linha_a, int linha_b) 
 static void triangularizar(double **M, double *b, int n ) {
     /* para cada linha a partir da primeira */
     for (int i = 0; i < n; ++i) {
-        debug_print("%d", i);
-        printf("Antes trocar\n");
-        print_matriz(M, n);
 
         int linha_pivo = encontra_max(M, i, n);
-        debug_print("%d", linha_pivo);
 
         if (i != linha_pivo)
             troca_linha(M, b, n, i, linha_pivo);
-        
-        printf("matriz com linha trocada\n");
-        print_matriz(M, n);
 
         for (int k = i + 1; k < n; ++k) {
-            debug_print("%d", i);
-            debug_print("%d", k);
-            print_matriz(M, n);
             // TODO: checar divisao por zero
             if (abs(M[i][i]) < 0.01)
                 debug_print("%g", M[i][i]);
@@ -86,8 +77,90 @@ double *resolver_sistema(double **M, double *b, int n) {
     return X;
 }
 
-double *resolver_sistema_LU(double **M, double *b, int n) {
+void calcula_LU(double **L, double **U, int *trocas, double ** M, int n) {
+    double *__inutil_tirar_TODO = calloc(n, sizeof(double)); 
 
+    for (int i = 0; i < n; i++) {
+        trocas[i] = i;
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            U[i][j] = M[i][j];
+        }
+        
+    }
+    
+    for (int i = 0; i < n; i++) {
+        int linha_pivo = encontra_max(U, i, n);
+        
+        if (i != linha_pivo) {
+            troca_linha(U, __inutil_tirar_TODO, n, i, linha_pivo);
+            int tmp = trocas[i];
+            trocas[i] = trocas[linha_pivo];
+            trocas[linha_pivo] = tmp;
+        }
+    }
+     
+
+    /* para cada linha a partir da primeira */
+    for (int i = 0; i < n; ++i) {
+
+        L[i][i] = 1.0f;
+
+        for (int k = i + 1; k < n; ++k) {
+            // TODO: checar divisao por zero
+            if (abs(U[i][i]) < 0.01)
+                debug_print("%g", U[i][i]);
+
+            double m = U[k][i] / U[i][i];
+
+            L[k][i] = m;
+            
+            U[k][i] = 0.0;
+
+            for (int j = i + 1; j < n; ++j)
+                U[k][j] -= U[i][j] * m;
+
+        }
+    }
+    print_matriz(L, n);
+    print_matriz(U, n);
+    free(__inutil_tirar_TODO);
+}
+
+static void retrossubs_bugada(double **M, double *X, double *b, int n)
+{
+    for (int i = 0; i < n; ++i) {
+        X[i] = b[i];
+
+        for (int j = i - 1; j >= 0; j--)
+            X[i] -= M[i][j] * X[j];
+
+        if (abs(M[i][i]) < 0.01)
+            debug_print("%g", M[i][i]);
+
+        X[i] /= M[i][i];
+    }
+}
+
+double *resolver_sistema_LU(double **L, double **U, double *b, int* trocas, int n) {
+    double *X = calloc(n, sizeof(double));
+    double *Y = calloc(n, sizeof(double));
+    
+    for (int i = 0; i < n; i++) {
+        double tmp = b[i];
+        b[i] = b[trocas[i]];
+        b[trocas[i]] = b[i];
+    }
+
+    retrossubs_bugada(L, Y, b, n);
+    retrossubs(U, X, Y, n);
+
+    free(Y);
+    return X;
 }
 
 double *resolver_sistema_gauss_seidel(double **M, double *b, int n) {

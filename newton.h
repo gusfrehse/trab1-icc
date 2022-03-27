@@ -14,6 +14,7 @@ typedef struct iteracao {
     char ** nomes_vars;
     void * f_evaluator;
     void * * * hessiana;
+    double ** hessiana_evaluada;
     void * * gradiente;
     double * * L;
     double * * U;
@@ -22,6 +23,7 @@ typedef struct iteracao {
     double epsilon;
     int max_iteracoes;
     bool acabou;
+    int * trocas;
 } iteracao;
 
 iteracao* criar_iteracao(char* f_str, int n, double* chute_inicial, double epsilon, double max_iteracoes);

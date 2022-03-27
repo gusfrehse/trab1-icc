@@ -18,4 +18,6 @@ void **destroi_matriz(void **mat, int n);
 
 void *cria_vetor(size_t size, int n);
 
+void mat_mult_mat_print(double **A, double **B, int n);
+
 #endif
