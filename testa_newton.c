@@ -6,11 +6,11 @@
 #define debug_print(fmt, var) \
     printf("%s:%d " #var " = " fmt "\n", __FILE__, __LINE__, (var))
 
-#define FUNCAO_TESTE "-log(1-x1-x2)-log(x1)-log(x2)"
+#define FUNCAO_TESTE "7*x1-log(x1)"
 
 void testa_criar_iteracao() {
-    double chute[] = {1, 2};
-    iteracao* iter = criar_iteracao(FUNCAO_TESTE, 2, chute, 0.1, 40);
+    double chute[] = {123123123};
+    iteracao* iter = criar_iteracao(FUNCAO_TESTE, 1, chute, 0.1, 40);
     debug_print("%d", iter->n);
     debug_print("%s", iter->f_str);
     
@@ -39,8 +39,8 @@ void testa_criar_iteracao() {
 }
 
 void testa_newton_padrao_sla() {
-    double chute[] = {0.85, 0.85};
-    iteracao* iter = criar_iteracao(FUNCAO_TESTE, 2, chute, 0.0001, 40);
+    double chute[] = {1231};
+    iteracao* iter = criar_iteracao(FUNCAO_TESTE, 1, chute, 0.0001, 40);
 
     while(true) {
         printf("%d\n", iter->i);
@@ -57,6 +57,6 @@ void testa_newton_padrao_sla() {
 }
 
 int main(void) {
-    testa_criar_iteracao();
+    // testa_criar_iteracao();
     testa_newton_padrao_sla();
 }
