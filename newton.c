@@ -6,34 +6,7 @@
 #include <math.h>
 
 #include "sim.h"
-
-#define debug_print(fmt, var) \
-    printf("%s:%d " #var " = " fmt "\n", __FILE__, __LINE__, (var))
-
-// TODO: erro malloc
-void **cria_matriz(size_t size, int n)
-{
-    void **mat = malloc(n * sizeof(void *));
-
-    for (int i = 0; i < n; i++)
-        mat[i] = malloc(n * size);
-
-    return mat;
-}
-
-void **destroi_matriz(void **mat, int n)
-{
-    for (int i = 0; i < n; i++)
-        free(mat[i]);
-
-    free(mat);
-}
-
-// TODO: erro malloc/calloc
-void *cria_vetor(size_t size, int n)
-{
-    return calloc(n, size);
-}
+#include "utilidades.h"
 
 static void calcula_gradiente_para_iteracao(iteracao *iter)
 {

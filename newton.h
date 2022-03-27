@@ -2,6 +2,7 @@
 #define NEWTON_H
 
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef struct iteracao {
     int i;
