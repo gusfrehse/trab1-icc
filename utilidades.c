@@ -15,8 +15,8 @@ void print_vetor_double(double v[], int tam)
 }
 
 void print_matriz(double **M, int tam) {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
+    for (int i = 0; i < tam; i++) {
+        for (int j = 0; j < tam; j++) {
             printf("%g, ", M[i][j]);
         }
         printf("\n");
