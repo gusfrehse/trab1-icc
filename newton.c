@@ -57,10 +57,10 @@ iteracao *criar_iteracao(char *f_str, int n, double *chute_inicial, double epsil
     calcula_gradiente_para_iteracao(iter);
     calcula_hessiana_para_iteracao(iter);
 
-    iter->hessiana_evaluada = (double **) cria_matriz(sizeof(double), n);
+    iter->hessiana_evaluada = (double **)cria_matriz(sizeof(double), n);
 
-    iter->L = (double **) cria_matriz(sizeof(double), n);
-    iter->U = (double **) cria_matriz(sizeof(double), n);
+    iter->L = (double **)cria_matriz(sizeof(double), n);
+    iter->U = (double **)cria_matriz(sizeof(double), n);
 
     iter->X = chute_inicial;
     iter->hess_steps = n;
@@ -68,6 +68,8 @@ iteracao *criar_iteracao(char *f_str, int n, double *chute_inicial, double epsil
     iter->max_iteracoes = max_iteracoes;
     iter->acabou = false;
     iter->trocas = cria_vetor(sizeof(int), n);
+
+    return iter;
 }
 
 void destroi_iteracao(iteracao *iter)
@@ -171,7 +173,8 @@ iteracao *iterar_newton_padrao(iteracao *iter)
     free(delta); // B)
 }
 
-iteracao* iterar_newton_modificado(iteracao* iter) {
+iteracao *iterar_newton_modificado(iteracao *iter)
+{
     double *gradiente_evaluado = (double *)cria_vetor(sizeof(double), iter->n);
 
     for (int i = 0; i < iter->n; i++)
@@ -193,15 +196,16 @@ iteracao* iterar_newton_modificado(iteracao* iter) {
         return;
     }
 
-    if(!(iter->i % iter->hess_steps)) {
+    if (!(iter->i % iter->hess_steps))
+    {
         for (int i = 0; i < iter->n; i++)
         {
             for (int j = 0; j < iter->n; j++)
             {
                 iter->hessiana_evaluada[i][j] = evaluator_evaluate(iter->hessiana[i][j],
-                                                             iter->n,
-                                                             iter->nomes_vars,
-                                                             iter->X);
+                                                                   iter->n,
+                                                                   iter->nomes_vars,
+                                                                   iter->X);
                 calcula_LU(iter->L, iter->U, iter->trocas, iter->hessiana_evaluada, iter->n);
             }
         }

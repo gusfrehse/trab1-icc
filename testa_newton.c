@@ -6,7 +6,7 @@
 #define debug_print(fmt, var) \
     printf("%s:%d " #var " = " fmt "\n", __FILE__, __LINE__, (var))
 
-#define FUNCAO_TESTE "7*x1-log(x1)"
+#define FUNCAO_TESTE "0.5*(x1^4-16*x1^2+5*x1+x2^4-16*x2^2+5*x2+x3^4-16*x3^2+5*x3+x4^4-16*x4^2+5*x4+x5^4-16*x5^2+5*x5+x6^4-16*x6^2+5*x6+x7^4-16*x7^2+5*x7+x8^4-16*x8^2+5*x8+x9^4-16*x9^2+5*x9+x10^4-16*x10^2+5*x10+0)"
 
 void testa_criar_iteracao()
 {
@@ -66,10 +66,11 @@ void testa_newton_padrao_sla()
     }
 }
 
-void testa_newton_modificado_sla() {
-    double chute[] = {0.1};
-    int num_vars = 1;
-    iteracao *iter = criar_iteracao(FUNCAO_TESTE, num_vars, chute, 0.0001, 40);
+void testa_newton_modificado_sla()
+{
+    double chute[] = {-3, -3, -3, -3, -3, -3, -3, -3, -3, -3};
+    int num_vars = 10;
+    iteracao *iter = criar_iteracao(FUNCAO_TESTE, num_vars, chute, 0.0000001, 40);
 
     while (true)
     {
@@ -84,12 +85,12 @@ void testa_newton_modificado_sla() {
         getchar();
 
         iterar_newton_modificado(iter);
-    }    
+    }
 }
 
 int main(void)
 {
     // testa_criar_iteracao();
-    testa_newton_padrao_sla();
-    // testa_newton_modificado_sla();
+    // testa_newton_padrao_sla();
+    testa_newton_modificado_sla();
 }
