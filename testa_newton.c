@@ -88,9 +88,31 @@ void testa_newton_modificado_sla()
     }
 }
 
+testa_newton_inexato_sla() {
+    double chute[] = {-3, -3, -3, -3, -3, -3, -3, -3, -3, -3};
+    int num_vars = 10;
+    iteracao *iter = criar_iteracao(FUNCAO_TESTE, num_vars, chute, 0.0000001, 40);
+
+    while (true)
+    {
+        printf("%d\n", iter->i);
+        debug_print("%lg", evaluator_evaluate(iter->f_evaluator, num_vars, iter->nomes_vars, iter->X));
+
+        for (int i = 0; i < iter->n; i++)
+        {
+            printf("X[%d] 8===D %g \n", i, iter->X[i]);
+        }
+
+        getchar();
+
+        iterar_newton_inexato(iter);
+    }
+}
+
 int main(void)
 {
     // testa_criar_iteracao();
     // testa_newton_padrao_sla();
-    testa_newton_modificado_sla();
+    // testa_newton_modificado_sla();
+    testa_newton_inexato_sla();
 }

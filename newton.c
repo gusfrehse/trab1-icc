@@ -232,30 +232,35 @@ iteracao *iterar_newton_modificado(iteracao *iter)
     free(delta); // B)
 }
 
-/* iteracao* iterar_newton_inexato(iteracao* iter) {
-    double* gradiente_evaluado = (double*) cria_vetor(sizeof(double), iter->n);
+iteracao* iterar_newton_inexato(iteracao* iter) {
+    double *gradiente_evaluado = (double *)cria_vetor(sizeof(double), iter->n);
 
     for (int i = 0; i < iter->n; i++)
     {
-        gradiente_evaluado[i] = evaluator_evaluate(iter->gradiente[i],
-                                                   iter->n,
-                                                   iter->nomes_vars,
-                                                   iter->X);
+        gradiente_evaluado[i] = -evaluator_evaluate(iter->gradiente[i],
+                                                    iter->n,
+                                                    iter->nomes_vars,
+                                                    iter->X);
+        debug_print("%f ", gradiente_evaluado[i]);
     }
 
-    double norma_evaluada = norma(gradiente_evaluado, iter->n) ;
+    double norma_evaluada = norma(gradiente_evaluado, iter->n);
 
-    if (norma_evaluada < iter->epsilon) {
+    if (norma_evaluada < iter->epsilon)
+    {
         free(gradiente_evaluado);
         iter->acabou = true;
         iter->i++;
         return;
     }
 
-    double **hessiana_evaluada = (double **) cria_matriz(sizeof(double), iter->n);
+    // TODO: hessiana_evaluada => iter->hessiana_evaluada
+    double **hessiana_evaluada = (double **)cria_matriz(sizeof(double), iter->n);
 
-    for (int i = 0; i < iter->n; i++) {
-        for (int j = 0; j < iter->n; j++) {
+    for (int i = 0; i < iter->n; i++)
+    {
+        for (int j = 0; j < iter->n; j++)
+        {
             hessiana_evaluada[i][j] = evaluator_evaluate(iter->hessiana[i][j],
                                                          iter->n,
                                                          iter->nomes_vars,
@@ -265,21 +270,22 @@ iteracao *iterar_newton_modificado(iteracao *iter)
 
     iter->i++;
 
-    double *delta = resolver_sistema_gauss_seidel(hessiana_evaluada, gradiente_evaluado);
+    double *delta = resolver_sistema_gauss_seidel(hessiana_evaluada, gradiente_evaluado, iter->n);
 
     free(gradiente_evaluado);
     free(hessiana_evaluada);
 
-    for (int i = 0; i < iter->n; i++) {
+    for (int i = 0; i < iter->n; i++)
+    {
         iter->X[i] += delta[i];
     }
 
-
-    if (norma(delta, iter->n) < iter->epsilon) {
+    if (norma(delta, iter->n) < iter->epsilon)
+    {
         iter->acabou = true;
         free(delta);
         return;
     }
 
     free(delta); // B)
-} */
+}
