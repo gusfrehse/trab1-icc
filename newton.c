@@ -116,7 +116,9 @@ static double norma(double *X, int n)
 
 iteracao *iterar_newton_padrao(iteracao *iter)
 {
-    double tempo_grad, tempo_hess, tempo_SL;
+    double tempo_total, tempo_grad, tempo_hess, tempo_SL;
+
+    tempo_total = timestamp();
 
     double *gradiente_evaluado = (double *)cria_vetor(sizeof(double), iter->n);
 
@@ -188,11 +190,16 @@ iteracao *iterar_newton_padrao(iteracao *iter)
     }
 
     free(delta); // B)
+
+    tempo_total = timestamp() - tempo_total;
+    iter->tempo_total += tempo_total;
 }
 
 iteracao *iterar_newton_modificado(iteracao *iter)
 {
-    double tempo_grad, tempo_hess, tempo_SL;
+    double tempo_total, tempo_grad, tempo_hess, tempo_SL;
+
+    tempo_total = timestamp();
 
     double *gradiente_evaluado = (double *)cria_vetor(sizeof(double), iter->n);
 
@@ -264,10 +271,15 @@ iteracao *iterar_newton_modificado(iteracao *iter)
     }
 
     free(delta); // B)
+
+    tempo_total = timestamp() - tempo_total;
+    iter->tempo_total += tempo_total;
 }
 
 iteracao* iterar_newton_inexato(iteracao* iter) {
-    double tempo_grad, tempo_hess, tempo_SL;
+    double tempo_total, tempo_grad, tempo_hess, tempo_SL;
+
+    tempo_total = timestamp();
 
     double *gradiente_evaluado = (double *)cria_vetor(sizeof(double), iter->n);
 
@@ -339,4 +351,7 @@ iteracao* iterar_newton_inexato(iteracao* iter) {
     }
 
     free(delta); // B)
+
+    tempo_total = timestamp() - tempo_total;
+    iter->tempo_total += tempo_total;
 }
