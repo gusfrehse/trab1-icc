@@ -12,7 +12,7 @@ static void retrossubs(double **M, double *X, double *b, int n) {
         for (int j = i + 1; j < n; j++)
             X[i] -= M[i][j] * X[j];
 
-        if (abs(M[i][i]) < 0.01)
+        if (fabs(M[i][i]) < 0.01)
             debug_print("%g", M[i][i]);
             
         X[i] /= M[i][i];
@@ -51,7 +51,7 @@ static void triangularizar(double **M, double *b, int n ) {
 
         for (int k = i + 1; k < n; ++k) {
             // TODO: checar divisao por zero
-            if (abs(M[i][i]) < 0.01)
+            if (fabs(M[i][i]) < 0.01)
                 debug_print("%g", M[i][i]);
 
             double m = M[k][i] / M[i][i];
@@ -79,6 +79,9 @@ double *resolver_sistema(double **M, double *b, int n) {
 
 void calcula_LU(double **L, double **U, int *trocas, double ** M, int n) {
     double *__inutil_tirar_TODO = calloc(n, sizeof(double)); 
+
+    printf("calcula_LU() -> M:\n");
+    print_matriz(M, n);
 
     for (int i = 0; i < n; i++) {
         trocas[i] = i;
@@ -112,7 +115,7 @@ void calcula_LU(double **L, double **U, int *trocas, double ** M, int n) {
 
         for (int k = i + 1; k < n; ++k) {
             // TODO: checar divisao por zero
-            if (abs(U[i][i]) < 0.01)
+            if (fabs(U[i][i]) < 0.01)
                 debug_print("%g", U[i][i]);
 
             double m = U[k][i] / U[i][i];
@@ -139,7 +142,7 @@ static void retrossubs_bugada(double **M, double *X, double *b, int n)
         for (int j = i - 1; j >= 0; j--)
             X[i] -= M[i][j] * X[j];
 
-        if (abs(M[i][i]) < 0.01)
+        if (fabs(M[i][i]) < 0.01)
             debug_print("%g", M[i][i]);
 
         X[i] /= M[i][i];

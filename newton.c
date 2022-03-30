@@ -134,7 +134,7 @@ iteracao *iterar_newton_padrao(iteracao *iter)
         free(gradiente_evaluado);
         iter->acabou = true;
         iter->i++;
-        return;
+        return NULL;
     }
 
     // TODO: hessiana_evaluada => iter->hessiana_evaluada
@@ -167,10 +167,11 @@ iteracao *iterar_newton_padrao(iteracao *iter)
     {
         iter->acabou = true;
         free(delta);
-        return;
+        return NULL;
     }
 
     free(delta); // B)
+    return NULL;
 }
 
 iteracao *iterar_newton_modificado(iteracao *iter)
@@ -193,7 +194,7 @@ iteracao *iterar_newton_modificado(iteracao *iter)
         free(gradiente_evaluado);
         iter->acabou = true;
         iter->i++;
-        return;
+        return NULL;
     }
 
     if (!(iter->i % iter->hess_steps))
@@ -226,10 +227,11 @@ iteracao *iterar_newton_modificado(iteracao *iter)
     {
         iter->acabou = true;
         free(delta);
-        return;
+        return NULL;
     }
 
     free(delta); // B)
+    return NULL;
 }
 
 iteracao* iterar_newton_inexato(iteracao* iter) {
@@ -251,7 +253,7 @@ iteracao* iterar_newton_inexato(iteracao* iter) {
         free(gradiente_evaluado);
         iter->acabou = true;
         iter->i++;
-        return;
+        return NULL;
     }
 
     // TODO: hessiana_evaluada => iter->hessiana_evaluada
@@ -284,8 +286,9 @@ iteracao* iterar_newton_inexato(iteracao* iter) {
     {
         iter->acabou = true;
         free(delta);
-        return;
+        return NULL;
     }
 
     free(delta); // B)
+    return NULL;
 }
