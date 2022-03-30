@@ -116,7 +116,13 @@ static double norma(double *X, int n)
 
 iteracao *iterar_newton_padrao(iteracao *iter)
 {
+    double tempo_total, tempo_grad, tempo_hess, tempo_SL;
+
+    tempo_total = timestamp();
+
     double *gradiente_evaluado = (double *)cria_vetor(sizeof(double), iter->n);
+
+    tempo_grad = timestamp();
 
     for (int i = 0; i < iter->n; i++)
     {
@@ -126,6 +132,9 @@ iteracao *iterar_newton_padrao(iteracao *iter)
                                                     iter->X);
         debug_print("%f ", gradiente_evaluado[i]);
     }
+
+    tempo_grad = timestamp() - tempo_grad;
+    iter->tempo_derivadas += tempo_grad;
 
     double norma_evaluada = norma(gradiente_evaluado, iter->n);
 
@@ -140,6 +149,8 @@ iteracao *iterar_newton_padrao(iteracao *iter)
     // TODO: hessiana_evaluada => iter->hessiana_evaluada
     double **hessiana_evaluada = (double **)cria_matriz(sizeof(double), iter->n);
 
+    tempo_hess = timestamp();
+
     for (int i = 0; i < iter->n; i++)
     {
         for (int j = 0; j < iter->n; j++)
@@ -151,9 +162,17 @@ iteracao *iterar_newton_padrao(iteracao *iter)
         }
     }
 
+    tempo_hess = timestamp() - tempo_hess;
+    iter->tempo_derivadas += tempo_hess;
+
     iter->i++;
 
+    tempo_SL = timestamp();
+
     double *delta = resolver_sistema(hessiana_evaluada, gradiente_evaluado, iter->n);
+
+    tempo_SL = timestamp() - tempo_SL;
+    iter->tempo_SL += tempo_SL;
 
     free(gradiente_evaluado);
     free(hessiana_evaluada);
@@ -171,12 +190,21 @@ iteracao *iterar_newton_padrao(iteracao *iter)
     }
 
     free(delta); // B)
+    tempo_total = timestamp() - tempo_total;
+    iter->tempo_total += tempo_total;
+
     return NULL;
 }
 
 iteracao *iterar_newton_modificado(iteracao *iter)
 {
+    double tempo_total, tempo_grad, tempo_hess, tempo_SL;
+
+    tempo_total = timestamp();
+
     double *gradiente_evaluado = (double *)cria_vetor(sizeof(double), iter->n);
+
+    tempo_grad = timestamp();
 
     for (int i = 0; i < iter->n; i++)
     {
@@ -186,6 +214,9 @@ iteracao *iterar_newton_modificado(iteracao *iter)
                                                     iter->X);
         debug_print("%f ", gradiente_evaluado[i]);
     }
+
+    tempo_grad = timestamp() - tempo_grad;
+    iter->tempo_derivadas += tempo_grad;
 
     double norma_evaluada = norma(gradiente_evaluado, iter->n);
 
@@ -199,6 +230,8 @@ iteracao *iterar_newton_modificado(iteracao *iter)
 
     if (!(iter->i % iter->hess_steps))
     {
+        tempo_hess = timestamp();
+
         for (int i = 0; i < iter->n; i++)
         {
             for (int j = 0; j < iter->n; j++)
@@ -210,11 +243,19 @@ iteracao *iterar_newton_modificado(iteracao *iter)
                 calcula_LU(iter->L, iter->U, iter->trocas, iter->hessiana_evaluada, iter->n);
             }
         }
+
+        tempo_hess = timestamp() - tempo_hess;
+        iter->tempo_derivadas += tempo_hess;
     }
 
     iter->i++;
 
+    tempo_SL = timestamp();
+
     double *delta = resolver_sistema_LU(iter->L, iter->U, gradiente_evaluado, iter->trocas, iter->n);
+
+    tempo_SL = timestamp() - tempo_SL;
+    iter->tempo_SL += tempo_SL;
 
     free(gradiente_evaluado);
 
@@ -231,11 +272,21 @@ iteracao *iterar_newton_modificado(iteracao *iter)
     }
 
     free(delta); // B)
+
+    tempo_total = timestamp() - tempo_total;
+    iter->tempo_total += tempo_total;
+
     return NULL;
 }
 
 iteracao* iterar_newton_inexato(iteracao* iter) {
+    double tempo_total, tempo_grad, tempo_hess, tempo_SL;
+
+    tempo_total = timestamp();
+
     double *gradiente_evaluado = (double *)cria_vetor(sizeof(double), iter->n);
+
+    tempo_grad = timestamp();
 
     for (int i = 0; i < iter->n; i++)
     {
@@ -245,6 +296,9 @@ iteracao* iterar_newton_inexato(iteracao* iter) {
                                                     iter->X);
         debug_print("%f ", gradiente_evaluado[i]);
     }
+
+    tempo_grad = timestamp() - tempo_grad;
+    iter->tempo_derivadas += tempo_grad;
 
     double norma_evaluada = norma(gradiente_evaluado, iter->n);
 
@@ -259,6 +313,8 @@ iteracao* iterar_newton_inexato(iteracao* iter) {
     // TODO: hessiana_evaluada => iter->hessiana_evaluada
     double **hessiana_evaluada = (double **)cria_matriz(sizeof(double), iter->n);
 
+    tempo_hess = timestamp();
+
     for (int i = 0; i < iter->n; i++)
     {
         for (int j = 0; j < iter->n; j++)
@@ -270,9 +326,17 @@ iteracao* iterar_newton_inexato(iteracao* iter) {
         }
     }
 
+    tempo_hess = timestamp() - tempo_hess;
+    iter->tempo_derivadas += tempo_hess;
+
     iter->i++;
 
+    tempo_SL = timestamp();
+
     double *delta = resolver_sistema_gauss_seidel(hessiana_evaluada, gradiente_evaluado, iter->n);
+
+    tempo_SL = timestamp() - tempo_SL;
+    iter->tempo_SL += tempo_SL;
 
     free(gradiente_evaluado);
     free(hessiana_evaluada);
@@ -290,5 +354,9 @@ iteracao* iterar_newton_inexato(iteracao* iter) {
     }
 
     free(delta); // B)
+
+    tempo_total = timestamp() - tempo_total;
+    iter->tempo_total += tempo_total;
+
     return NULL;
 }
