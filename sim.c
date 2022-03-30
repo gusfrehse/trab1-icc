@@ -80,8 +80,8 @@ double *resolver_sistema(double **M, double *b, int n) {
 void calcula_LU(double **L, double **U, int *trocas, double ** M, int n) {
     double *__inutil_tirar_TODO = calloc(n, sizeof(double)); 
 
-    printf("calcula_LU() -> M:\n");
-    print_matriz(M, n);
+    //printf("calcula_LU() -> M:\n");
+    //print_matriz(M, n);
 
     for (int i = 0; i < n; i++) {
         trocas[i] = i;
@@ -129,8 +129,8 @@ void calcula_LU(double **L, double **U, int *trocas, double ** M, int n) {
 
         }
     }
-    print_matriz(L, n);
-    print_matriz(U, n);
+    //print_matriz(L, n);
+    //print_matriz(U, n);
     free(__inutil_tirar_TODO);
 }
 
@@ -166,6 +166,41 @@ double *resolver_sistema_LU(double **L, double **U, double *b, int* trocas, int 
     return X;
 }
 
-double *resolver_sistema_gauss_seidel(double **M, double *b, int n) {
+double *resolver_sistema_gauss_seidel(double **M, double *b, int n) {    
+    double *X = calloc(n, sizeof(double));
+    double *X_old = calloc(n, sizeof(double));
+    double *delta = calloc(n, sizeof(double));
+    const int max_iters = 50;
+    
+    //print_matriz(M, n);
+    
 
+    for (int iters = 0; iters < max_iters; iters++) {
+        
+        for (int i = 0; i < n; i++) {
+            X_old[i] = X[i];
+            X[i] = b[i];
+
+            for (int j = 0; j < i; j++) {
+                X[i] -= M[i][j] * X[j];
+            }
+
+            for (int j = i + 1; j < n; j++) {
+                X[i] -= M[i][j] * X[j];
+            }
+            
+            X[i] /= M[i][i];
+            
+            delta[i] = X[i] - X_old[i];
+        }
+
+        if (norma(delta, n) < 1e-6) {
+            break;
+        }
+    }
+
+    free(X_old);
+    free(delta);
+
+    return X;
 }

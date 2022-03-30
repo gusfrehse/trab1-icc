@@ -1,12 +1,14 @@
 #include "newton.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <matheval.h>
 #include <math.h>
 
 #include "sim.h"
 #include "utilidades.h"
+#include "utils.h"
 
 static void calcula_gradiente_para_iteracao(iteracao *iter)
 {
@@ -62,7 +64,8 @@ iteracao *criar_iteracao(char *f_str, int n, double *chute_inicial, double epsil
     iter->L = (double **)cria_matriz(sizeof(double), n);
     iter->U = (double **)cria_matriz(sizeof(double), n);
 
-    iter->X = chute_inicial;
+    iter->X = calloc(n, sizeof(double));
+    memcpy(iter->X, chute_inicial, n * sizeof(double));
     iter->hess_steps = n;
     iter->epsilon = epsilon;
     iter->max_iteracoes = max_iteracoes;
@@ -97,21 +100,10 @@ void destroi_iteracao(iteracao *iter)
     destroi_matriz((void **)iter->L, iter->n);
     destroi_matriz((void **)iter->U, iter->n);
 
+    // TODO: double free no chute inicial.
     free(iter->X);
 
     free(iter);
-}
-
-static double norma(double *X, int n)
-{
-    double max = fabs(X[0]);
-    for (int i = 1; i < n; i++)
-    {
-        if (fabs(X[i]) > max)
-            max = fabs(X[i]);
-    }
-
-    return max;
 }
 
 iteracao *iterar_newton_padrao(iteracao *iter)
@@ -130,7 +122,7 @@ iteracao *iterar_newton_padrao(iteracao *iter)
                                                     iter->n,
                                                     iter->nomes_vars,
                                                     iter->X);
-        debug_print("%f ", gradiente_evaluado[i]);
+        // debug_print("%f ", gradiente_evaluado[i]);
     }
 
     tempo_grad = timestamp() - tempo_grad;
@@ -212,7 +204,7 @@ iteracao *iterar_newton_modificado(iteracao *iter)
                                                     iter->n,
                                                     iter->nomes_vars,
                                                     iter->X);
-        debug_print("%f ", gradiente_evaluado[i]);
+        //debug_print("%f ", gradiente_evaluado[i]);
     }
 
     tempo_grad = timestamp() - tempo_grad;
@@ -240,9 +232,10 @@ iteracao *iterar_newton_modificado(iteracao *iter)
                                                                    iter->n,
                                                                    iter->nomes_vars,
                                                                    iter->X);
-                calcula_LU(iter->L, iter->U, iter->trocas, iter->hessiana_evaluada, iter->n);
             }
         }
+
+        calcula_LU(iter->L, iter->U, iter->trocas, iter->hessiana_evaluada, iter->n);
 
         tempo_hess = timestamp() - tempo_hess;
         iter->tempo_derivadas += tempo_hess;
@@ -294,7 +287,7 @@ iteracao* iterar_newton_inexato(iteracao* iter) {
                                                     iter->n,
                                                     iter->nomes_vars,
                                                     iter->X);
-        debug_print("%f ", gradiente_evaluado[i]);
+        // debug_print("%f ", gradiente_evaluado[i]);
     }
 
     tempo_grad = timestamp() - tempo_grad;

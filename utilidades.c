@@ -3,6 +3,7 @@
 // #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 void print_vetor_double(double v[], int tam)
 {
@@ -70,4 +71,16 @@ void mat_mult_mat_print(double **A, double **B, int n) {
         }
         printf("\n");
     }
+}
+
+double norma(double *X, int n)
+{
+    double max = fabs(X[0]);
+    for (int i = 1; i < n; i++)
+    {
+        if (fabs(X[i]) > max)
+            max = fabs(X[i]);
+    }
+
+    return max;
 }
