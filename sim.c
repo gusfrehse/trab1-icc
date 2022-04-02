@@ -156,7 +156,7 @@ double *resolver_sistema_LU(double **L, double **U, double *b, int* trocas, int 
     for (int i = 0; i < n; i++) {
         double tmp = b[i];
         b[i] = b[trocas[i]];
-        b[trocas[i]] = b[i];
+        b[trocas[i]] = tmp;
     }
 
     retrossubs_bugada(L, Y, b, n);

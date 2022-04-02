@@ -7,7 +7,9 @@ typedef struct SistemaLinear SistemaLinear;
 typedef struct ConfigLU ConfigLU;
 typedef struct ConfigGaussSeidel ConfigGaussSeidel;
 
-SistemaLinear* criar_sl(double** M, double *b, int n);
+SistemaLinear* alocar_sl(int n);
+
+void criar_sl(SistemaLinear *sl, double** M, double *b);
 
 void destruir_sl(SistemaLinear *sl);
 
