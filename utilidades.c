@@ -3,6 +3,7 @@
 // #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 void print_vetor_double(double v[], int tam)
@@ -34,7 +35,7 @@ void inicializa_matriz(double M[3][3], double **chata) {
 }
 
 // TODO: erro malloc
-void **cria_matriz(size_t size, int n)
+void **criar_matriz(size_t size, int n)
 {
     void **mat = malloc(n * sizeof(void *));
 
@@ -44,7 +45,13 @@ void **cria_matriz(size_t size, int n)
     return mat;
 }
 
-void **destroi_matriz(void **mat, int n)
+void copiar_matriz_double(double **dst, double **src, int n) {
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            dst[i][j] = src[i][j];    
+}
+
+void **destruir_matriz(void **mat, int n)
 {
     for (int i = 0; i < n; i++)
         free(mat[i]);
@@ -53,9 +60,17 @@ void **destroi_matriz(void **mat, int n)
 }
 
 // TODO: erro malloc/calloc
-void *cria_vetor(size_t size, int n)
+void *criar_vetor(size_t size, int n)
 {
     return calloc(n, size);
+}
+
+void destruir_vetor(void *v) {
+    free(v);
+}
+
+void copiar_vetor_double(double *dst, double *src, int n) {
+    memcpy(dst, src, sizeof(double) * n);
 }
 
 void mat_mult_mat_print(double **A, double **B, int n) {

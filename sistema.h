@@ -1,6 +1,7 @@
 #ifndef SISTEMA_H
 #define SISTEMA_H
 
+#define MAX_ITERS_GAUSS_SEIDEL 50
 
 typedef struct SistemaLinear SistemaLinear;
 
@@ -26,5 +27,7 @@ ConfigGaussSeidel *criar_config_gauss_seidel(SistemaLinear *sl);
 void destruir_config_LU(ConfigLU *s);
 
 void destruir_config_gauss_seidel(ConfigGaussSeidel *s);
+
+double *solucao_sl(SistemaLinear *sl);
 
 #endif

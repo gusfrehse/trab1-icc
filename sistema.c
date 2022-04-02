@@ -1,5 +1,10 @@
 #include "sistema.h"
 
+#include "utilidades.h"
+
+#include <math.h>
+#include <stdlib.h>
+
 typedef struct SistemaLinear {
     int n;
     double *b, *X;
@@ -27,14 +32,14 @@ SistemaLinear* alocar_sl(int n) {
     sl->n = n;
     sl->b = criar_vetor(sizeof(double), n);
     sl->X = criar_vetor(sizeof(double), n);
-    sl->M = criar_matriz(sizeof(double), n);
+    sl->M = (double**) criar_matriz(sizeof(double), n);
 
     return sl;
 }
 
 void criar_sl(SistemaLinear *sl, double** M, double *b) {
-    copiar_matriz(M, sl->M);
-    copiar_vetor(b, sl->b);
+    copiar_matriz_double(sl->M, M, sl->n);
+    copiar_vetor_double(sl->b, b, sl->n);
 }
 
 static void retrossubs(double **M, double *X, double *b, int n) {
@@ -126,17 +131,37 @@ static void troca_linha_LU(SistemaLinear *sl, ConfigLU *s, int linha_a, int linh
     sl->U[linha_a] = sl->U[linha_b];
     sl->U[linha_b] = tmp;
 
-    int tmp = s->trocas[linha_a];
+    int tmp_2 = s->trocas[linha_a];
     s->trocas[linha_a] = s->trocas[linha_b];
-    s->trocas[linha_b] = tmp;
+    s->trocas[linha_b] = tmp_2;
 }
 
 static void aplicar_trocas_LU(SistemaLinear *sl, ConfigLU *s) {
-    for (int i = 0; i < sl->n; i++) {
-        double tmp = sl->b[i];
-        sl->b[i] = sl->b[s->trocas[i]];
-        sl->b[s->trocas[i]] = tmp;
-    }
+    /*
+    troca = [0, 1, 2]
+    b     = [x, y, z]
+    (troca 1 e 2)
+    troca = [0, 2, 1]
+    b     = [x, z, y]
+    (troca 0 e 1)
+    troca = [2, 0, 1]
+    b     = [z, x, y]
+    (troca 0 e 2)
+    troca = [1, 0, 2]
+    b     = [y, x, z]
+    
+    */
+    // for (int i = 0; i < sl->n; i++) {
+    //     double tmp = sl->b[i];
+    //     sl->b[i] = sl->b[s->trocas[i]];
+    //     sl->b[s->trocas[i]] = tmp;
+    // }
+    double res[sl->n];
+
+    for (int i = 0; i < sl->n; i++)
+        res[i] = sl->b[s->trocas[i]];
+
+    copiar_vetor_double(sl->b, res, sl->n);
 }
 
 static void fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
@@ -144,10 +169,10 @@ static void fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
     /* para cada linha a partir da primeira */
     for (int i = 0; i < sl->n; ++i) {
 
-        int linha_pivo = encontra_max(sl->U, i);
+        int linha_pivo = encontra_max(sl, i);
         
         if (i != linha_pivo)
-            troca_linha_LU(sl, s->trocas, i, linha_pivo);
+            troca_linha_LU(sl, s, i, linha_pivo);
             
         sl->L[i][i] = 1.0f;
 
@@ -155,6 +180,7 @@ static void fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
             // TODO: checar divisao por zero
             // if (fabs(sl->U[i][i]) < 0.01)
             //     debug_print("%g", U[i][i]);
+            
 
             double m = sl->U[k][i] / sl->U[i][i];
 
@@ -175,45 +201,40 @@ void resolver_sl_LU(SistemaLinear *sl, ConfigLU *s) {
 }
 
 void destruir_sl(SistemaLinear *sl) {
-    destruir_matriz(sl->M);
+    destruir_matriz((double**) sl->M, sl->n);
     destruir_vetor(sl->b);
     destruir_vetor(sl->X);
 
     if(sl->L)
-        destruir_matriz(sl->L);
+        destruir_matriz(sl->L, sl->n);
 }
 
 void resolver_sl_gauss_seidel(SistemaLinear *sl, ConfigGaussSeidel *s) {
-    const int max_iters = 50;
+    int teste[sl->n];
     //print_matriz(M, n);
-    for (int iters = 0; iters < max_iters; iters++) {
+    for (int iters = 0; iters < MAX_ITERS_GAUSS_SEIDEL; iters++) {
         
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < sl->n; i++) {
             s->X_old[i] = sl->X[i];
-            X[i] = b[i];
+            sl->X[i] = sl->b[i];
 
             for (int j = 0; j < i; j++) {
-                X[i] -= M[i][j] * X[j];
+                sl->X[i] -= sl->M[i][j] * sl->X[j];
             }
 
-            for (int j = i + 1; j < n; j++) {
-                X[i] -= M[i][j] * X[j];
+            for (int j = i + 1; j < sl->n; j++) {
+                sl->X[i] -= sl->M[i][j] * sl->X[j];
             }
             
-            X[i] /= M[i][i];
+            sl->X[i] /= sl->M[i][i];
             
-            delta[i] = X[i] - X_old[i];
+            s->delta[i] = sl->X[i] - s->X_old[i];
         }
 
-        if (norma(delta, n) < 1e-6) {
+        if (norma(s->delta, sl->n) < 1e-6) {
             break;
         }
     }
-
-    free(X_old);
-    free(delta);
-
-    return X;
 }
 
 ConfigLU *criar_config_LU(SistemaLinear *sl) {
@@ -221,7 +242,7 @@ ConfigLU *criar_config_LU(SistemaLinear *sl) {
     ConfigLU *config = malloc(sizeof(ConfigLU));
     config->trocas = criar_vetor(sizeof(double), sl->n);
     
-    sl->L = criar_matriz(sizeof(double), sl->n);
+    sl->L = (double **) criar_matriz(sizeof(double), sl->n);
 
     for (int i = 0; i < sl->n; i++)
         config->trocas[i] = i;
@@ -229,46 +250,19 @@ ConfigLU *criar_config_LU(SistemaLinear *sl) {
     fatorar_LU(sl, config);
 
     return config;
-     
-    // 0, 1, 2
-    // 0, 1, 2
-    // (troca linha 1 com 2)
-    // 0, 1, 2
-    // 0, 2, 1
-    // (troca linha 0 com 2)
-    // 0, 1, 2
-    // 1, 2, 0
-    
-    // b[trocas[i]] = b[i];
-
-    // vetor v (sem pivoteamento)
-
-    // b0 = [x, y, z]  trocas0 = [0, 1, 2]
-    // (troca linha 1 com 2)
-    // b1 = [x, z, y]  trocas1 = [0, 2, 1]
-    // (troca linha 0 com 2)
-    // b2 = [y, z, x]  trocas2 = [1, 2, 0]
-    
-    // b2[trocas2[i]] == b0[i]; 
-    
-
-    // i -> i_novo
-    // b[i] = b[trocas[i]]
-
-    // i_novo -> i
-    // a[trocas[i]] = b[i]
-    
-    //print_matriz(L, n);
-    //print_matriz(U, n);
 }
 
 ConfigGaussSeidel *criar_config_gauss_seidel(SistemaLinear *sl) {
-    ConfigGaussSeidel *config = malloc(sizeof(ConfigGaussSeidel), sl->n);
+    ConfigGaussSeidel *config = malloc(sizeof(ConfigGaussSeidel));
 
     config->delta = criar_vetor(sizeof(double), sl->n);
     config->X_old = criar_vetor(sizeof(double), sl->n);
 
     return config;
+}
+
+double *solucao_sl(SistemaLinear *sl) {
+    return sl->X;
 }
 
 void destruir_config_LU(ConfigLU *s) {
