@@ -121,7 +121,17 @@ static void retrossubs_U(double **M, double *Y, double *b, int n)
     }
 }
 
-static void aplicar_trocas_sl_LU(SistemaLinear *sl, ConfigLU *s) {
+static void troca_linha_LU(SistemaLinear *sl, ConfigLU *s, int linha_a, int linha_b) {
+    double *tmp = sl->U[linha_a];
+    sl->U[linha_a] = sl->U[linha_b];
+    sl->U[linha_b] = tmp;
+
+    int tmp = s->trocas[linha_a];
+    s->trocas[linha_a] = s->trocas[linha_b];
+    s->trocas[linha_b] = tmp;
+}
+
+static void aplicar_trocas_LU(SistemaLinear *sl, ConfigLU *s) {
     for (int i = 0; i < sl->n; i++) {
         double tmp = sl->b[i];
         sl->b[i] = sl->b[s->trocas[i]];
@@ -129,8 +139,36 @@ static void aplicar_trocas_sl_LU(SistemaLinear *sl, ConfigLU *s) {
     }
 }
 
+static void fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
+    
+    /* para cada linha a partir da primeira */
+    for (int i = 0; i < sl->n; ++i) {
+
+        int linha_pivo = encontra_max(sl->U, i);
+        
+        if (i != linha_pivo)
+            troca_linha_LU(sl, s->trocas, i, linha_pivo);
+            
+        sl->L[i][i] = 1.0f;
+
+        for (int k = i + 1; k < sl->n; ++k) {
+            // TODO: checar divisao por zero
+            // if (fabs(sl->U[i][i]) < 0.01)
+            //     debug_print("%g", U[i][i]);
+
+            double m = sl->U[k][i] / sl->U[i][i];
+
+            sl->L[k][i] = m;
+            sl->U[k][i] = 0.0;
+
+            for (int j = i + 1; j < sl->n; ++j)
+                sl->U[k][j] -= sl->U[i][j] * m;
+        }
+    }
+}
+
 void resolver_sl_LU(SistemaLinear *sl, ConfigLU *s) {
-    aplicar_trocas_sl_LU(sl, s);
+    aplicar_trocas_LU(sl, s);
     
     retrossubs_U(sl->L, sl->X, sl->b, sl->n);
     retrossubs(sl->U, sl->X, sl->X, sl->n);
@@ -181,74 +219,63 @@ void resolver_sl_gauss_seidel(SistemaLinear *sl, ConfigGaussSeidel *s) {
 ConfigLU *criar_config_LU(SistemaLinear *sl) {
 
     ConfigLU *config = malloc(sizeof(ConfigLU));
-    config->trocas = criar_vetor(sizeof(double), n);
+    config->trocas = criar_vetor(sizeof(double), sl->n);
+    
+    sl->L = criar_matriz(sizeof(double), sl->n);
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < sl->n; i++)
         config->trocas[i] = i;
 
-    // pivoteamento
-    for (int i = 0; i < n; i++) {
-        int linha_pivo = encontra_max(sl->U, i, n);
-        
-        if (i != linha_pivo) {
-            troca_linha(U, __inutil_tirar_TODO, n, i, linha_pivo);
-            int tmp = config->trocas[i];
-            config->trocas[i] = config->trocas[linha_pivo];
-            config->trocas[linha_pivo] = tmp;
-        }
-    }
+    fatorar_LU(sl, config);
+
+    return config;
      
-    0, 1, 2
-    0, 1, 2
-    (troca linha 1 com 2)
-    0, 1, 2
-    0, 2, 1
-    (troca linha 0 com 2)
-    0, 1, 2
-    1, 2, 0
+    // 0, 1, 2
+    // 0, 1, 2
+    // (troca linha 1 com 2)
+    // 0, 1, 2
+    // 0, 2, 1
+    // (troca linha 0 com 2)
+    // 0, 1, 2
+    // 1, 2, 0
     
-    b[trocas[i]] = b[i];
+    // b[trocas[i]] = b[i];
 
-    vetor v (sem pivoteamento)
+    // vetor v (sem pivoteamento)
 
-    b0 = [x, y, z]  trocas0 = [0, 1, 2]
-    (troca linha 1 com 2)
-    b1 = [x, z, y]  trocas1 = [0, 2, 1]
-    (troca linha 0 com 2)
-    b2 = [y, z, x]  trocas2 = [1, 2, 0]
+    // b0 = [x, y, z]  trocas0 = [0, 1, 2]
+    // (troca linha 1 com 2)
+    // b1 = [x, z, y]  trocas1 = [0, 2, 1]
+    // (troca linha 0 com 2)
+    // b2 = [y, z, x]  trocas2 = [1, 2, 0]
     
-    b2[trocas2[i]] == b0[i]; 
-    
-
-    i -> i_novo
-    b[i] = b[trocas[i]]
-
-    i_novo -> i
-    a[trocas[i]] = b[i]
+    // b2[trocas2[i]] == b0[i]; 
     
 
-    /* para cada linha a partir da primeira */
-    for (int i = 0; i < n; ++i) {
+    // i -> i_novo
+    // b[i] = b[trocas[i]]
 
-        L[i][i] = 1.0f;
-
-        for (int k = i + 1; k < n; ++k) {
-            // TODO: checar divisao por zero
-            if (fabs(U[i][i]) < 0.01)
-                debug_print("%g", U[i][i]);
-
-            double m = U[k][i] / U[i][i];
-
-            L[k][i] = m;
-            
-            U[k][i] = 0.0;
-
-            for (int j = i + 1; j < n; ++j)
-                U[k][j] -= U[i][j] * m;
-
-        }
-    }
+    // i_novo -> i
+    // a[trocas[i]] = b[i]
+    
     //print_matriz(L, n);
     //print_matriz(U, n);
-    free(__inutil_tirar_TODO);
+}
+
+ConfigGaussSeidel *criar_config_gauss_seidel(SistemaLinear *sl) {
+    ConfigGaussSeidel *config = malloc(sizeof(ConfigGaussSeidel), sl->n);
+
+    config->delta = criar_vetor(sizeof(double), sl->n);
+    config->X_old = criar_vetor(sizeof(double), sl->n);
+
+    return config;
+}
+
+void destruir_config_LU(ConfigLU *s) {
+    destruir_vetor(s->trocas);
+}
+
+void destruir_config_gauss_seidel(ConfigGaussSeidel *s) {
+    destruir_vetor(s->delta);
+    destruir_vetor(s->X_old);
 }

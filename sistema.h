@@ -23,4 +23,8 @@ ConfigLU *criar_config_LU(SistemaLinear *sl);
 
 ConfigGaussSeidel *criar_config_gauss_seidel(SistemaLinear *sl);
 
+void destruir_config_LU(ConfigLU *s);
+
+void destruir_config_gauss_seidel(ConfigGaussSeidel *s);
+
 #endif
