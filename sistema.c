@@ -33,6 +33,7 @@ SistemaLinear* alocar_sl(int n) {
     sl->b = criar_vetor(sizeof(double), n);
     sl->X = criar_vetor(sizeof(double), n);
     sl->M = (double**) criar_matriz(sizeof(double), n);
+    sl->L = NULL;
 
     return sl;
 }
@@ -110,7 +111,7 @@ void resolver_sl_eliminacao_gauss(SistemaLinear *sl) {
     retrossubs(sl->M, sl->X, sl->b, sl->n);
 }
 
-static void retrossubs_U(double **M, double *Y, double *b, int n)
+static void retrossubs_L(double **M, double *Y, double *b, int n)
 {
     for (int i = 0; i < n; ++i) {
         Y[i] = b[i];
@@ -131,31 +132,16 @@ static void troca_linha_LU(SistemaLinear *sl, ConfigLU *s, int linha_a, int linh
     sl->U[linha_a] = sl->U[linha_b];
     sl->U[linha_b] = tmp;
 
+    tmp = sl->L[linha_a];
+    sl->L[linha_a] = sl->L[linha_b];
+    sl->L[linha_b] = tmp;
+
     int tmp_2 = s->trocas[linha_a];
     s->trocas[linha_a] = s->trocas[linha_b];
     s->trocas[linha_b] = tmp_2;
 }
 
 static void aplicar_trocas_LU(SistemaLinear *sl, ConfigLU *s) {
-    /*
-    troca = [0, 1, 2]
-    b     = [x, y, z]
-    (troca 1 e 2)
-    troca = [0, 2, 1]
-    b     = [x, z, y]
-    (troca 0 e 1)
-    troca = [2, 0, 1]
-    b     = [z, x, y]
-    (troca 0 e 2)
-    troca = [1, 0, 2]
-    b     = [y, x, z]
-    
-    */
-    // for (int i = 0; i < sl->n; i++) {
-    //     double tmp = sl->b[i];
-    //     sl->b[i] = sl->b[s->trocas[i]];
-    //     sl->b[s->trocas[i]] = tmp;
-    // }
     double res[sl->n];
 
     for (int i = 0; i < sl->n; i++)
@@ -191,27 +177,30 @@ static void fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
                 sl->U[k][j] -= sl->U[i][j] * m;
         }
     }
+    
+    // print_matriz(sl->L, sl->n);
+    // print_matriz(sl->U, sl->n);
 }
 
 void resolver_sl_LU(SistemaLinear *sl, ConfigLU *s) {
     aplicar_trocas_LU(sl, s);
     
-    retrossubs_U(sl->L, sl->X, sl->b, sl->n);
+    retrossubs_L(sl->L, sl->X, sl->b, sl->n);
     retrossubs(sl->U, sl->X, sl->X, sl->n);
 }
 
 void destruir_sl(SistemaLinear *sl) {
-    destruir_matriz((double**) sl->M, sl->n);
+    destruir_matriz((void **)sl->M, sl->n);
     destruir_vetor(sl->b);
     destruir_vetor(sl->X);
 
     if(sl->L)
-        destruir_matriz(sl->L, sl->n);
+        destruir_matriz((void **)sl->L, sl->n);
+
+    free(sl);
 }
 
 void resolver_sl_gauss_seidel(SistemaLinear *sl, ConfigGaussSeidel *s) {
-    int teste[sl->n];
-    //print_matriz(M, n);
     for (int iters = 0; iters < MAX_ITERS_GAUSS_SEIDEL; iters++) {
         
         for (int i = 0; i < sl->n; i++) {
@@ -237,22 +226,23 @@ void resolver_sl_gauss_seidel(SistemaLinear *sl, ConfigGaussSeidel *s) {
     }
 }
 
-ConfigLU *criar_config_LU(SistemaLinear *sl) {
-
+ConfigLU *alocar_config_LU(SistemaLinear *sl) {
     ConfigLU *config = malloc(sizeof(ConfigLU));
     config->trocas = criar_vetor(sizeof(double), sl->n);
-    
     sl->L = (double **) criar_matriz(sizeof(double), sl->n);
+
+    return config;
+}
+
+void criar_config_LU(ConfigLU *config, SistemaLinear *sl) {
 
     for (int i = 0; i < sl->n; i++)
         config->trocas[i] = i;
 
     fatorar_LU(sl, config);
-
-    return config;
 }
 
-ConfigGaussSeidel *criar_config_gauss_seidel(SistemaLinear *sl) {
+ConfigGaussSeidel *alocar_config_gauss_seidel(SistemaLinear *sl) {
     ConfigGaussSeidel *config = malloc(sizeof(ConfigGaussSeidel));
 
     config->delta = criar_vetor(sizeof(double), sl->n);
@@ -261,15 +251,19 @@ ConfigGaussSeidel *criar_config_gauss_seidel(SistemaLinear *sl) {
     return config;
 }
 
+void criar_config_gauss_seidel(ConfigGaussSeidel *config, SistemaLinear *sl) {}
+
 double *solucao_sl(SistemaLinear *sl) {
     return sl->X;
 }
 
 void destruir_config_LU(ConfigLU *s) {
     destruir_vetor(s->trocas);
+    free(s);
 }
 
 void destruir_config_gauss_seidel(ConfigGaussSeidel *s) {
     destruir_vetor(s->delta);
     destruir_vetor(s->X_old);
+    free(s);
 }

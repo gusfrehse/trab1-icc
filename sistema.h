@@ -20,9 +20,15 @@ void resolver_sl_LU(SistemaLinear *sl, ConfigLU *s);
 
 void resolver_sl_gauss_seidel(SistemaLinear *sl, ConfigGaussSeidel *s);
 
-ConfigLU *criar_config_LU(SistemaLinear *sl);
+ConfigLU *alocar_config_LU(SistemaLinear *sl);
 
-ConfigGaussSeidel *criar_config_gauss_seidel(SistemaLinear *sl);
+void criar_config_LU(ConfigLU *config, SistemaLinear *sl);
+
+void criar_config_gauss_seidel(ConfigGaussSeidel *config, SistemaLinear *sl);
+
+ConfigGaussSeidel *alocar_config_gauss_seidel(SistemaLinear *sl);
+
+void criar_config_gauss_seidel(ConfigGaussSeidel *config, SistemaLinear *sl);
 
 void destruir_config_LU(ConfigLU *s);
 

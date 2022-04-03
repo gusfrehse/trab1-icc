@@ -45,3 +45,4 @@ void destroi_iteracao(iteracao* iter);
 // }
 
 #endif // NEWTON_H
+

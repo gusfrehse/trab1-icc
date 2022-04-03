@@ -37,10 +37,10 @@ void inicializa_matriz(double M[3][3], double **chata) {
 // TODO: erro malloc
 void **criar_matriz(size_t size, int n)
 {
-    void **mat = malloc(n * sizeof(void *));
+    void **mat = calloc(n, sizeof(void *));
 
     for (int i = 0; i < n; i++)
-        mat[i] = malloc(n * size);
+        mat[i] = calloc(n, size);
 
     return mat;
 }
@@ -51,7 +51,7 @@ void copiar_matriz_double(double **dst, double **src, int n) {
             dst[i][j] = src[i][j];    
 }
 
-void **destruir_matriz(void **mat, int n)
+void destruir_matriz(void **mat, int n)
 {
     for (int i = 0; i < n; i++)
         free(mat[i]);
@@ -98,4 +98,9 @@ double norma(double *X, int n)
     }
 
     return max;
+}
+
+void somar_vetor(double *dst, double *src, int n) {
+    for (int i = 0; i < n; i++)
+        dst[i] += src[i];
 }
