@@ -1,8 +1,17 @@
+CC		= gcc
+CFLAGS	= -std=gnu17
+LFLAGS	= -lm -lmatheval
 
+PROG	= newtonPC
+OBJS	= main.o interface.o criticante.o sistema.o utils.o utilidades.o
 
-main : main.o
-main.o : main.c
-	
+.PHONY: clean all
+
+$(PROG) : $(OBJS)
+	$(CC) -o $@ $^ $(LFLAGS)
+
+%.o : %.c
+	$(CC) -c $(CFLAGS) $<
+
 clean :
-	rm -f *.o
-	rm -f main
+	rm -f $(OBJS) $(PROG)

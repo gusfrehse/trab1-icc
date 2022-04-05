@@ -15,7 +15,6 @@ int ler_dados_criticantes(int *n, char **f_str, int *max_iters, double *epsilon,
     }
     lidos = scanf("%ms", f_str);
     if (lidos != 1) {
-        // TODO: nao sei o q acontece se for EOF aqui, se da malloc ou nao
         return -1;
     }
 
@@ -60,7 +59,11 @@ int escrever_cabecalho(FILE *f, int n, char *f_str) {
     return 0;
 }
 
-static int escrever_dados_iteracao(FILE *f, IterInfo i) {
+static void escrever_dados_iteracao(FILE *f, IterInfo i) {
+    if (i.ocorreu_erro) {
+        fprintf(f, "ERRO\t\t\t| ");
+        return;
+    }
    
     if(!i.acabou) {
         

@@ -10,6 +10,7 @@ typedef struct IterInfo {
     double tempo_SL;
     double f_x;
     bool acabou;
+    bool ocorreu_erro;
 } IterInfo;
 
 typedef enum TipoCriticante {

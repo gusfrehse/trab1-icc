@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
             info_padrao = iterar_criticante(crit_padrao);
             info_modificado = iterar_criticante(crit_modificado);
             info_inexato = iterar_criticante(crit_inexato);
-
+            
             if (acabou_criticante(crit_padrao) &&
                 acabou_criticante(crit_modificado) &&
                 acabou_criticante(crit_inexato)) {

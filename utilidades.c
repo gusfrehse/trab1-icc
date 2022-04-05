@@ -6,6 +6,7 @@
 #include <string.h>
 #include <math.h>
 
+
 void print_vetor_double(double v[], int tam)
 {
     printf("[");
@@ -38,9 +39,10 @@ void inicializa_matriz(double M[3][3], double **chata) {
 void **criar_matriz(size_t size, int n)
 {
     void **mat = calloc(n, sizeof(void *));
+    if(!mat) return NULL;
 
     for (int i = 0; i < n; i++)
-        mat[i] = calloc(n, size);
+        if(!(mat[i] = calloc(n, size))) return NULL;
 
     return mat;
 }

@@ -12,6 +12,10 @@ SistemaLinear* alocar_sl(int n);
 
 void criar_sl(SistemaLinear *sl, double** M, double *b);
 
+void setar_matriz_sl(SistemaLinear *sl, double **M);
+
+void setar_termos_independentes_sl(SistemaLinear *sl, double *b);
+
 void destruir_sl(SistemaLinear *sl);
 
 void resolver_sl_eliminacao_gauss(SistemaLinear *sl);

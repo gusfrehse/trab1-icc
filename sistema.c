@@ -4,6 +4,9 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
+#define EPSILON_ZERO 1e-6
 
 typedef struct SistemaLinear {
     int n;
@@ -15,7 +18,8 @@ typedef struct SistemaLinear {
     };
     
     double **L;
-
+    
+    bool ocorreu_erro;
 } SistemaLinear;
 
 typedef struct ConfigLU {
@@ -31,9 +35,28 @@ SistemaLinear* alocar_sl(int n) {
 
     sl->n = n;
     sl->b = criar_vetor(sizeof(double), n);
+    if(!sl->b) {
+        free(sl);
+        return NULL;
+    }
+        
+
     sl->X = criar_vetor(sizeof(double), n);
+    if (!sl->X) {
+        free(sl->b);
+        free(sl);
+        return NULL;
+    }
     sl->M = (double**) criar_matriz(sizeof(double), n);
+    if(!sl->M) {
+        free(sl->X);
+        free(sl->b);
+        free(sl);
+        return NULL;
+    }
+    
     sl->L = NULL;
+    sl->ocorreu_erro = false;
 
     return sl;
 }
@@ -43,19 +66,20 @@ void criar_sl(SistemaLinear *sl, double** M, double *b) {
     copiar_vetor_double(sl->b, b, sl->n);
 }
 
-static void retrossubs(double **M, double *X, double *b, int n) {
+static int retrossubs(double **M, double *X, double *b, int n) {
     for (int i = n - 1; i >=0; --i) {
         X[i] = b[i];
 
         for (int j = i + 1; j < n; j++)
             X[i] -= M[i][j] * X[j];
 
-        // TODO : divisao por 0
-        // if (fabs(M[i][i]) < 0.01)
-        //     debug_print("%g", M[i][i]);
+        if (fabs(M[i][i]) < EPSILON_ZERO)
+            return -1;
             
         X[i] /= M[i][i];
     }
+    
+    return 0;
 }
 
 static int encontra_max(SistemaLinear *sl, int coluna) {
@@ -79,7 +103,7 @@ static void troca_linha(SistemaLinear *sl, int linha_a, int linha_b) {
     sl->b[linha_b] = tmp2;
 }
 
-static void triangularizar(SistemaLinear *sl) {
+static int triangularizar(SistemaLinear *sl) {
     /* para cada linha a partir da primeira */
     for (int i = 0; i < sl->n; ++i) {
 
@@ -90,8 +114,8 @@ static void triangularizar(SistemaLinear *sl) {
 
         for (int k = i + 1; k < sl->n; ++k) {
             // TODO: checar divisao por zero
-            if (fabs(sl->M[i][i]) < 0.01)
-                debug_print("%g", sl->M[i][i]);
+            if (fabs(sl->M[i][i]) < EPSILON_ZERO)
+                return -1;
 
             double m = sl->M[k][i] / sl->M[i][i];
 
@@ -103,6 +127,8 @@ static void triangularizar(SistemaLinear *sl) {
             sl->b[k] -= sl->b[i] * m;
         }
     }
+
+    return 0;
 }
 
 
@@ -111,7 +137,7 @@ void resolver_sl_eliminacao_gauss(SistemaLinear *sl) {
     retrossubs(sl->M, sl->X, sl->b, sl->n);
 }
 
-static void retrossubs_L(double **M, double *Y, double *b, int n)
+static int retrossubs_L(double **M, double *Y, double *b, int n)
 {
     for (int i = 0; i < n; ++i) {
         Y[i] = b[i];
@@ -119,12 +145,13 @@ static void retrossubs_L(double **M, double *Y, double *b, int n)
         for (int j = i - 1; j >= 0; j--)
             Y[i] -= M[i][j] * Y[j];
 
-        // TODO: divisao por 0
-        // if (fabs(M[i][i]) < 0.01)
-        //     debug_print("%g", M[i][i]);
+        if (fabs(M[i][i]) < EPSILON_ZERO)
+            return -1;
 
         Y[i] /= M[i][i];
     }
+    
+    return 0;
 }
 
 static void troca_linha_LU(SistemaLinear *sl, ConfigLU *s, int linha_a, int linha_b) {
@@ -150,7 +177,7 @@ static void aplicar_trocas_LU(SistemaLinear *sl, ConfigLU *s) {
     copiar_vetor_double(sl->b, res, sl->n);
 }
 
-static void fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
+static int fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
     
     /* para cada linha a partir da primeira */
     for (int i = 0; i < sl->n; ++i) {
@@ -163,9 +190,8 @@ static void fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
         sl->L[i][i] = 1.0f;
 
         for (int k = i + 1; k < sl->n; ++k) {
-            // TODO: checar divisao por zero
-            // if (fabs(sl->U[i][i]) < 0.01)
-            //     debug_print("%g", U[i][i]);
+            if (fabs(sl->M[i][i]) < EPSILON_ZERO)
+                return -1;
             
 
             double m = sl->U[k][i] / sl->U[i][i];
@@ -178,8 +204,7 @@ static void fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
         }
     }
     
-    // print_matriz(sl->L, sl->n);
-    // print_matriz(sl->U, sl->n);
+    return 0;
 }
 
 void resolver_sl_LU(SistemaLinear *sl, ConfigLU *s) {
@@ -228,8 +253,20 @@ void resolver_sl_gauss_seidel(SistemaLinear *sl, ConfigGaussSeidel *s) {
 
 ConfigLU *alocar_config_LU(SistemaLinear *sl) {
     ConfigLU *config = malloc(sizeof(ConfigLU));
+    if(!config) return NULL;
+
     config->trocas = criar_vetor(sizeof(double), sl->n);
+    if(!config->trocas) {
+        free(config);
+        return NULL;
+    }
+
     sl->L = (double **) criar_matriz(sizeof(double), sl->n);
+    if(!sl->L) {
+        free(config->trocas);
+        free(config);
+        return NULL;
+    }
 
     return config;
 }
@@ -244,9 +281,19 @@ void criar_config_LU(ConfigLU *config, SistemaLinear *sl) {
 
 ConfigGaussSeidel *alocar_config_gauss_seidel(SistemaLinear *sl) {
     ConfigGaussSeidel *config = malloc(sizeof(ConfigGaussSeidel));
+    if(!config) return NULL;
 
     config->delta = criar_vetor(sizeof(double), sl->n);
+    if(!config->delta) {
+        free(config);
+        return NULL;
+    }
     config->X_old = criar_vetor(sizeof(double), sl->n);
+    if(!config->X_old) {
+        free(config->delta);
+        free(config);
+        return NULL;
+    }
 
     return config;
 }
@@ -254,12 +301,23 @@ ConfigGaussSeidel *alocar_config_gauss_seidel(SistemaLinear *sl) {
 void criar_config_gauss_seidel(ConfigGaussSeidel *config, SistemaLinear *sl) {}
 
 double *solucao_sl(SistemaLinear *sl) {
-    return sl->X;
+    if (!sl->ocorreu_erro)
+        return sl->X;
+        
+    return NULL;
 }
 
 void destruir_config_LU(ConfigLU *s) {
     destruir_vetor(s->trocas);
     free(s);
+}
+
+void setar_matriz_sl(SistemaLinear *sl, double **M) {
+    copiar_matriz_double(sl->M, M, sl->n);
+}
+
+void setar_termos_independentes_sl(SistemaLinear *sl, double *b) {
+    copiar_vetor_double(sl->b, b, sl->n);
 }
 
 void destruir_config_gauss_seidel(ConfigGaussSeidel *s) {

@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#define CHECK_ERROR(expr, error_check, callback) \
+            if ((expr) == error_check) callback;
+
 #define debug_print(fmt, var) \
     printf("%s:%d " #var " = " fmt "\n", __FILE__, __LINE__, (var))
 
