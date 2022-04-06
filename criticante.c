@@ -1,3 +1,8 @@
+/*
+Vinícius Maurício Ribeiro GRR20203911
+Gustavo Silveira Frehse GRR20203927
+*/
+
 #include "criticante.h"
 
 #include <stdbool.h>
@@ -37,15 +42,73 @@ typedef struct Criticante {
     
 } Criticante;
 
+/**
+ * @brief Itera um Criticante do tipo padrão.
+ * 
+ * @param c Criticante a ser iterado.
+ * @return IterInfo Informações sobre a iteração realizada.
+ */
 static IterInfo iterar_padrao(Criticante *c);
+
+/**
+ * @brief Itera um Criticante do tipo modificado.
+ * 
+ * @param c Criticante a ser iterado.
+ * @return IterInfo Informações sobre a iteração realizada.
+ */
 static IterInfo iterar_modificado(Criticante *c);
+
+/**
+ * @brief Itera um Criticante do tipo inexato.
+ * 
+ * @param c Criticante a ser iterado.
+ * @return IterInfo Informações sobre a iteração realizada.
+ */
 static IterInfo iterar_inexato(Criticante *c);
 
+/**
+ * @brief Cria o vetor de evaluators para o gradiente.
+ * 
+ * @param c Criticante para qual será criado o vetor de evaluators.
+ * @return int 0 caso sucesso, -1 em caso de falha.
+ */
 static int criar_evaluator_gradiente(Criticante *c);
+
+/**
+ * @brief Cria a matriz de evaluators para o hessiana.
+ * 
+ * @param c Criticante para qual será criado a matriz de evaluators.
+ * @return int 0 caso sucesso, -1 em caso de falha.
+ */
 static int criar_evaluator_hessiana(Criticante *c);
 
+/**
+ * @brief Evalua o gradiente no chute atual.
+ * 
+ * @param c Criticante a ter seu gradiente evaluado.
+ */
 static void evaluar_gradiente(Criticante *c);
+
+/**
+ * @brief Evalua a hessiana no chute atual.
+ * 
+ * @param c Criticante a ter sua hessiana evaluada.
+ */
 static void evaluar_hessiana(Criticante *c);
+
+/**
+ * @brief Libera a memória usada pela hessiana.
+ * 
+ * @param c Criticante a ter sua hessiana destruída.
+ */
+static void destruir_evaluator_hessiana(Criticante *c);
+
+/**
+ * @brief Libera a memória usada pela hessiana.
+ * 
+ * @param c Criticante a ter sua hessiana destruída.
+ */
+static void destruir_evaluator_gradiente(Criticante *c);
 
 
 static int criar_evaluator_hessiana(Criticante *c)
@@ -79,7 +142,6 @@ static int criar_evaluator_gradiente(Criticante *c)
 {
     c->gradiente = criar_vetor(sizeof(void *), c->num_vars);
     if(!c->gradiente) return -1;
-    // evaluator_get_variables(c->f_evaluator, &vars, &count);
 
     // Vetor de derivadas parciais de f
     for (int i = 0; i < c->num_vars; i++) {
