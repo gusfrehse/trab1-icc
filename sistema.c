@@ -6,8 +6,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+// Epsilon para checagem de erro por divisão por 0.
 #define EPSILON_ZERO 1e-6
 
+
+/**
+ * @brief Estrutura que guarda dados fundamentais para resolver o sistema com qualquer método.
+ * 
+ */
 typedef struct SistemaLinear {
     int n;
     double *b, *X;
@@ -22,13 +28,104 @@ typedef struct SistemaLinear {
     bool ocorreu_erro;
 } SistemaLinear;
 
+/**
+ * @brief Armazena configurações necessárias para o algoritmo da fatoração LU
+ * Além do Sistema linear, precisamos guardar adicionalmente um vetor de trocas
+ * para aplicar o pivoteamento parcial em b.
+ * 
+ */
 typedef struct ConfigLU {
     int *trocas;
 } ConfigLU;
 
+
+/**
+ * @brief Armazena configurações necessárias para o algoritmo Gauss Seidel
+ * 
+ */
 typedef struct ConfigGaussSeidel {
     double *X_old, *delta;
 } ConfigGaussSeidel;
+
+
+/**
+ * @brief Triangulariza um sistema linear. utilizado na eliminação de Gauss.
+ * 
+ * @param sl Sistema linear
+ * @return int 
+ */
+static int triangularizar(SistemaLinear *sl);
+
+/**
+ * @brief Realiza retrosubstituição em um sistema previamente triangularizado.
+ * 
+ * @param M Matriz dos coeficientes lineares
+ * @param X Vetor X de resposta
+ * @param b Vetor de coeficientes independentes
+ * @param n Tamanho do sistema
+ * @return int Se ocorrer algum erro retorna -1. Caso contrário retorna 0.
+ */
+static int retrossubs(double **M, double *X, double *b, int n);
+
+/**
+ * @brief Troca duas linhas de um sistema linear.
+ * 
+ * @param sl Sistema Linear
+ * @param linha_a Primeira linha
+ * @param linha_b Segudnda linha
+ */
+static void troca_linha(SistemaLinear *sl, int linha_a, int linha_b);
+
+/**
+ * @brief Encontra o índice da linha com o maior elemento na coluna "coluna"
+ * de um sistema linear
+ * 
+ * @param sl Sistema Linear
+ * @param coluna Coluna a ser considerada
+ * @return int 
+ */
+static int encontra_max(SistemaLinear *sl, int coluna);
+
+
+/**
+ * @brief Realiza a fatoração LU de um Sistema Linear.
+ * 
+ * @param sl Sistema Linear
+ * @param s Configurações do Algoritmo Fatoração LU
+ * @return int 
+ */
+static int fatorar_LU(SistemaLinear *sl, ConfigLU *s);
+
+/**
+ * @brief Realiza a retrosubstituição em uma matriz triangular inferior.
+ * 
+ * @param M Matriz de coeficientes lineares
+ * @param Y Vetor de resultados
+ * @param b Vetor de termos independentes
+ * @param n Tamanho do sistema
+ * @return int 
+ */
+static int retrossubs_L(double **M, double *Y, double *b, int n);
+
+/**
+ * @brief Troca linhas de um sistema linear fatorado.
+ * 
+ * @param sl Sistema Linear
+ * @param s Configuração do Algoritmo Fatoração LU
+ * @param linha_a Primeira linha
+ * @param linha_b Segunda linha
+ */
+static void troca_linha_LU(SistemaLinear *sl, ConfigLU *s, int linha_a, int linha_b);
+
+/**
+ * @brief Aplica as trocas realizadas nas matrizes LU pelo pivoteamento parcial
+ * no vetor de termos independentes.
+ * 
+ * @param sl Sistema Linear
+ * @param s Configuração do Algoritmo Fatoração LU
+ */
+static void aplicar_trocas_LU(SistemaLinear *sl, ConfigLU *s);
+
 
 SistemaLinear* alocar_sl(int n) {
     SistemaLinear *sl = malloc(sizeof(SistemaLinear));

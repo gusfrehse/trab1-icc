@@ -35,7 +35,6 @@ void inicializa_matriz(double M[3][3], double **chata) {
     }
 }
 
-// TODO: erro malloc
 void **criar_matriz(size_t size, int n)
 {
     void **mat = calloc(n, sizeof(void *));
