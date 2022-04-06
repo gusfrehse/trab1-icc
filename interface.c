@@ -6,6 +6,14 @@
 
 #include "criticante.h"
 
+/**
+ * @brief Escreve dados de uma iteração.
+ * 
+ * @param f Arquivo de saída.
+ * @param i Informação de uma iteração.
+ */
+static void escrever_dados_iteracao(FILE *f, IterInfo i);
+
 int ler_dados_criticantes(int *n, char **f_str, int *max_iters, double *epsilon, double **X0) {
     int lidos = 0;
     
