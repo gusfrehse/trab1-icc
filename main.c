@@ -1,3 +1,7 @@
+/*
+Vinícius Maurício Ribeiro GRR20203911
+Gustavo Silveira Frehse GRR20203927
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

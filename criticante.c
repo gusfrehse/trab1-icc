@@ -1,3 +1,8 @@
+/*
+Vinícius Maurício Ribeiro GRR20203911
+Gustavo Silveira Frehse GRR20203927
+*/
+
 #include "criticante.h"
 
 #include <stdbool.h>

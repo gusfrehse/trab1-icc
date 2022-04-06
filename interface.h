@@ -1,3 +1,7 @@
+/*
+Vinícius Maurício Ribeiro GRR20203911
+Gustavo Silveira Frehse GRR20203927
+*/
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
