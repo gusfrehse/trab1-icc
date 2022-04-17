@@ -1,9 +1,9 @@
 CC		= gcc
 CFLAGS	= -std=gnu17
-LFLAGS	= -lm -lmatheval
+LFLAGS	= -lm
 
 PROG	= newtonPC
-OBJS	= main.o interface.o criticante.o sistema.o utils.o utilidades.o
+OBJS	= main.o interface.o criticante.o sistema.o utils.o utilidades.o Rosenbrock.o
 
 .PHONY: clean all
 

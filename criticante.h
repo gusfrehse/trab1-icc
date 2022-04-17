@@ -42,6 +42,7 @@ typedef struct Criticante Criticante;
 /**
  * @brief Aloca espaço na memória e inicialiaza uma estrutura criticante.
  * 
+ * @param n Dimensão da função
  * @param f_str String que representa a função.
  * @param max_iters Máximo de iterações.
  * @param epsilon Valor máximo de erro permitido.
@@ -49,7 +50,7 @@ typedef struct Criticante Criticante;
  * @param tipo Tipo de criticante a ser criado.
  * @return Criticante* 
  */
-Criticante *criar_criticante(char* f_str, int max_iters, double epsilon, double *X0, TipoCriticante tipo);
+Criticante *criar_criticante(int n, char* f_str, int max_iters, double epsilon, double *X0, TipoCriticante tipo);
 
 /**
  * @brief Executa uma iteração do criticante. Caso já tenha passado do máximo de

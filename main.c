@@ -8,6 +8,7 @@ Gustavo Silveira Frehse GRR20203927
 
 #include "interface.h"
 #include "criticante.h"
+// #include "utilidades.h" // Remover isso
 
 int main(int argc, char **argv) {
     int n;
@@ -40,9 +41,9 @@ int main(int argc, char **argv) {
     
     
     while (!ler_dados_criticantes(&n, &f_str, &max_iters, &epsilon, &X0)) {
-        crit_padrao = criar_criticante(f_str, max_iters, epsilon, X0, CRITICANTE_PADRAO);
-        crit_modificado = criar_criticante(f_str, max_iters, epsilon, X0, CRITICANTE_MODIFICADO);
-        crit_inexato = criar_criticante(f_str, max_iters, epsilon, X0, CRITICANTE_INEXATO);
+        crit_padrao = criar_criticante(n, f_str, max_iters, epsilon, X0, CRITICANTE_PADRAO);
+        crit_modificado = criar_criticante(n, f_str, max_iters, epsilon, X0, CRITICANTE_MODIFICADO);
+        crit_inexato = criar_criticante(n, f_str, max_iters, epsilon, X0, CRITICANTE_INEXATO);
         
         escrever_cabecalho(outfile, n, f_str);
              
@@ -61,6 +62,16 @@ int main(int argc, char **argv) {
        }
 
         escrever_tempos(outfile, info_padrao, info_modificado, info_inexato);
+
+        // TODO: retirar printfs
+        // printf("\nVetor X padrao:\n");
+        // print_vetor_double(solucao_criticante(crit_padrao), n);
+
+        // printf("\nVetor X modificado:\n");
+        // print_vetor_double(solucao_criticante(crit_modificado), n);
+
+        // printf("\nVetor X inexato:\n");
+        // print_vetor_double(solucao_criticante(crit_inexato), n);
 
         free(X0);
         free(f_str);

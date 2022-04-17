@@ -2,3 +2,6 @@ matheval.h
 .vscode/*
 testa_newton
 a.out
+*.o
+out.dat
+newtonPC
