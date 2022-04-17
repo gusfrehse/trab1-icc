@@ -1,5 +1,5 @@
 CC		= gcc
-CFLAGS	= -std=gnu17
+CFLAGS	= -std=gnu17 -O3 -mavx -march=native
 LFLAGS	= -lm
 
 PROG	= newtonPC
@@ -8,7 +8,7 @@ OBJS	= main.o interface.o criticante.o sistema.o utils.o utilidades.o Rosenbrock
 .PHONY: clean all
 
 $(PROG) : $(OBJS)
-	$(CC) -o $@ $^ $(LFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
 
 %.o : %.c
 	$(CC) -c $(CFLAGS) $<

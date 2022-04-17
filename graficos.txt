@@ -1,0 +1,42 @@
+Gráficos
+
+Utilizar os gráficos abaixo para:
+
+--> 1. Newton Padrão
+----> 1. Aplicação do Método de Newton
+----> 2. Cálculo dos vetores gradientes
+----> 3. Cálculo das matrizes Hessianas
+----> 4. Resolução dos Sistemas Lineares
+
+--> 2. Newton Inexato
+----> 1. Aplicação do Método de Newton
+----> 2. Cálculo dos vetores gradientes
+----> 3. Cálculo das matrizes Hessianas
+----> 4. Resolução dos Sistemas Lineares
+
+Ex de gráfico:
+Gráfico 1.3.3: Cálculo das matrizes Hessianas - Newton Padrão - Cache miss L2 (data cache miss ratio) x dimensão N da Função Rosenbrock
+
+Total de gráficos: 2 x 4 x 4 = 16
+
+Observações supremas dos gráficos
+1. N = {10, 32, 50, 64, 100, 128, 200, 250, 256, 300, 400, 512, 600, 1000, 1024, 2000, 2048, 3000, 4096}
+2.  Colocar no mesmo gráfico o resultado dos testes sem otimização (Etapa 1) e com otimização (Etapa 2)
+
+Gráfico 1
+Tempo médio (ms) x dimensão N da Função Rosenbrock
+Obs: tempo em escala logarítmica
+
+Gráfico 2
+Banda de memória (MBytes/s) x dimensão N da Função Rosenbrock
+Obs: utilizar o grupo L3 do LIKWID
+
+Gráfico 3
+Cache miss L2 (data cache miss ratio) x dimensão N da Função Rosenbrock
+Obs: utilizar o grupo L2CACHE do LIKWID
+
+Gráfico 4
+Operações aritméticas (MFLOP/s) x dimensão N da Função Rosenbrock
+Obs: utilizar o grupo FLOPS_DP do LIKWID
+Obs2: reportar FLOPS_DP e FLOPS_AVX como duas linhas separadas
+
