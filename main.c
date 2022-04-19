@@ -5,12 +5,16 @@ Gustavo Silveira Frehse GRR20203927
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <likwid.h>
 
 #include "interface.h"
 #include "criticante.h"
 // #include "utilidades.h" // Remover isso
 
 int main(int argc, char **argv) {
+
+    LIKWID_MARKER_INIT;
+
     int n;
     char * f_str;
     int max_iters;
@@ -81,5 +85,7 @@ int main(int argc, char **argv) {
         destruir_criticante(crit_inexato);
     }
     
+    LIKWID_MARKER_CLOSE;
+
     return 0;
 }

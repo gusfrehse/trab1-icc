@@ -1,11 +1,12 @@
+#TODO REMOVER -fno-inline do CFLAGS
 CC		= gcc
-CFLAGS	= -std=gnu17 -O3 -mavx -march=native
-LFLAGS	= -lm
+CFLAGS	= -std=gnu17 -O3 -mavx -march=native -DLIKWID_PERFMON -I${LIKWID_INCLUDE} -fno-inline
+LFLAGS	= -lm -L${LIKWID_LIB} -llikwid
 
 PROG	= newtonPC
 OBJS	= main.o interface.o criticante.o sistema.o utils.o utilidades.o Rosenbrock.o
 
-.PHONY: clean all
+.PHONY: clean all profiling
 
 $(PROG) : $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
@@ -15,3 +16,9 @@ $(PROG) : $(OBJS)
 
 clean :
 	rm -f $(OBJS) $(PROG)
+
+
+profiling: $(OBJS)
+	$(CC) $(CFLAGS) -pg -fno-inline -o $(PROG) $^ $(LFLAGS)
+	./gera_rosenbrock_simples.sh | ./$(PROG)
+	gprof ./$(PROG) gmon.out

@@ -7,6 +7,7 @@ Gustavo Silveira Frehse GRR20203927
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <likwid.h>
 // #include <matheval.h>
 #include "Rosenbrock.h"
 
@@ -338,6 +339,8 @@ void destruir_criticante(Criticante *crit) {
 
 static void evaluar_gradiente(Criticante *c) {
     double tempo = timestamp();
+
+    
     /* 
     for (int i = 0; i < c->num_vars; i++)
         c->gradiente_evaluado[i] = -evaluator_evaluate(c->gradiente[i], c->num_vars, c->f_vars, c->X);
