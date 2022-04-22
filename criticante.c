@@ -376,11 +376,15 @@ static void evaluar_hessiana(Criticante *c) {
 }
 
 static IterInfo iterar_padrao(Criticante *c) {
+    LIKWID_MARKER_START("newton-padrao-total");
+
     double tempo_total, tempo_grad, tempo_hess, tempo_SL;
 
     tempo_total = timestamp();
 
+    LIKWID_MARKER_START("newton-padrao-gradiente");
     evaluar_gradiente(c);
+    LIKWID_MARKER_STOP("newton-padrao-gradiente");
 
     if (norma(c->gradiente_evaluado, c->num_vars) < c->epsilon) {
         c->info.acabou = true;
@@ -388,18 +392,23 @@ static IterInfo iterar_padrao(Criticante *c) {
         tempo_total = timestamp() - tempo_total;
         c->info.tempo_total += tempo_total;
         
+        LIKWID_MARKER_STOP("newton-padrao-total");
         return c->info;
     }
 
+    LIKWID_MARKER_START("newton-padrao-hessiana");
     evaluar_hessiana(c);
+    LIKWID_MARKER_STOP("newton-padrao-hessiana");
 
+    LIKWID_MARKER_START("newton-padrao-sl");
     tempo_SL = timestamp();
-    
+
     criar_sl(c->newton, c->hessiana_evaluada, c->gradiente_evaluado);
     resolver_sl_eliminacao_gauss(c->newton);
 
     tempo_SL = timestamp() - tempo_SL;
     c->info.tempo_SL += tempo_SL;
+    LIKWID_MARKER_STOP("newton-padrao-sl");
     
     double *delta = solucao_sl(c->newton);
     if(!delta) {
@@ -417,12 +426,14 @@ static IterInfo iterar_padrao(Criticante *c) {
         tempo_total = timestamp() - tempo_total;
         c->info.tempo_total += tempo_total;
         
+        LIKWID_MARKER_STOP("newton-padrao-total");
         return c->info;
     }
 
     tempo_total = timestamp() - tempo_total;
     c->info.tempo_total += tempo_total;
 
+    LIKWID_MARKER_STOP("newton-padrao-total");
     return c->info;
 }
 
@@ -485,22 +496,30 @@ static IterInfo iterar_modificado(Criticante *c) {
 }
 
 static IterInfo iterar_inexato(Criticante *c) {
+    LIKWID_MARKER_START("newton-inexato-total");
+
     double tempo_total, tempo_grad, tempo_hess, tempo_SL;
 
     tempo_total = timestamp();
     
+    LIKWID_MARKER_START("newton-inexato-gradiente");
     evaluar_gradiente(c);
+    LIKWID_MARKER_STOP("newton-inexato-gradiente");
 
     if (norma(c->gradiente_evaluado, c->num_vars) < c->epsilon) {
         c->info.acabou = true;
         tempo_total = timestamp() - tempo_total;
         c->info.tempo_total += tempo_total;
 
+        LIKWID_MARKER_STOP("newton-inexato-total");
         return c->info;
     }
 
+    LIKWID_MARKER_START("newton-inexato-hessiana");
     evaluar_hessiana(c);
+    LIKWID_MARKER_STOP("newton-inexato-hessiana");
     
+    LIKWID_MARKER_START("newton-inexato-sl");
     tempo_SL = timestamp();
 
     criar_sl(c->newton, c->hessiana_evaluada, c->gradiente_evaluado);
@@ -509,6 +528,7 @@ static IterInfo iterar_inexato(Criticante *c) {
 
     tempo_SL = timestamp() - tempo_SL;
     c->info.tempo_SL += tempo_SL;
+    LIKWID_MARKER_STOP("newton-inexato-sl");
 
     double *delta = solucao_sl(c->newton);
     if(!delta) {
@@ -524,12 +544,14 @@ static IterInfo iterar_inexato(Criticante *c) {
         tempo_total = timestamp() - tempo_total;
         c->info.tempo_total += tempo_total;
 
+        LIKWID_MARKER_STOP("newton-inexato-total");
         return c->info;
     }
-    
+
     tempo_total = timestamp() - tempo_total;
     c->info.tempo_total += tempo_total;
     
+    LIKWID_MARKER_STOP("newton-inexato-total");
     return c->info;
 }
 
