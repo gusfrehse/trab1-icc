@@ -3,11 +3,12 @@
 import os
 import re
 import csv
+import sys
 
 ROSENBROCK_GENERATOR = "gera_rosenbrock_mod.sh"
 CORE = "3"
-PROG_NORMAL = "newtonPC"
-PROG_OTIMIZADO = "newtonPC"
+PROG_NORMAL = sys.argv[1]
+PROG_OTIMIZADO = sys.argv[2]
 
 trechos = [ 'newton-padrao-total', 'newton-padrao-gradiente', 'newton-padrao-hessiana', 'newton-padrao-sl',
             'newton-inexato-total', 'newton-inexato-gradiente', 'newton-inexato-hessiana', 'newton-inexato-sl']
@@ -21,7 +22,6 @@ def roda_e_gera_csv_do_likwid(n, prog, nome_arq, grupo_metrica):
     os.system("echo 'powersave' > /sys/devices/system/cpu/cpufreq/policy3/scaling_governor")
 
 def gera_dados_do_csv_do_likwid(reader, metrica, trecho):
-    print("gerando metrica", metrica, "trecho", trecho)
     trecho_atual = ''
     for row in reader:
 
@@ -41,7 +41,9 @@ def gera_dados_do_csv_do_likwid(reader, metrica, trecho):
 
 
 def update_graficos(n, grupo, metrica):
+    print("rodando grupo", grupo, "normal")
     roda_e_gera_csv_do_likwid(n, PROG_NORMAL, "tmpnormal.csv", grupo)
+    print("rodando grupo", grupo, "otimizado")
     roda_e_gera_csv_do_likwid(n, PROG_OTIMIZADO, "tmpotimizado.csv", grupo)
 
     with open("tmpnormal.csv", "r") as nf, open("tmpotimizado.csv") as of:
@@ -53,7 +55,7 @@ def update_graficos(n, grupo, metrica):
                 dado_normal = gera_dados_do_csv_do_likwid(normal_reader, metrica, trecho)
                 dado_otimizado = gera_dados_do_csv_do_likwid(otimizado_reader, metrica, trecho)
                 linha = str(n) + ',' + dado_normal + ',' + dado_otimizado
-                if grupo == "FLOPS_DP" and metrica == "FLOPS_DP":
+                if grupo == "FLOPS_DP":
                     linha += ',' + gera_dados_do_csv_do_likwid(normal_reader, "AVX DP MFLOP/s", trecho)
                     linha += ',' + gera_dados_do_csv_do_likwid(otimizado_reader, "AVX DP MFLOP/s", trecho)
                 linha += '\n'
@@ -73,9 +75,13 @@ def main():
 
     for n in ns:
         print("n =", n)
+        print("CLOCK...")
         update_graficos(n, "CLOCK",  "Runtime unhalted [s]")
+        print("L3...")
         update_graficos(n, "L3",  "L3 load bandwidth [MBytes/s]")
+        print("L2CACHE..")
         update_graficos(n, "L2CACHE",  "L2 miss ratio")
+        print("FLOPS..")
         update_graficos(n, "FLOPS_DP",  "DP MFLOP/s")
 
     exit(0)

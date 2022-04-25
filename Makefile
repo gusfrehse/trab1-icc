@@ -62,8 +62,8 @@ t2-likwid: CFLAGS = $(LIKWID_CFLAGS)
 t2-likwid: LFLAGS = $(LIKWID_LFLAGS)
 t2-likwid: $(T2_EXEC)
 
-graph: t1ll t2ll
-	gera_graficos.py $(T1_EXEC) $(T2_EXEC)
+graphics: t1ll t2l
+	./gera_graficos.py $(T1_LINHA_EXEC) $(T2_EXEC)
 
 clean:
 	rm -rf $(T1_EXEC) $(T1_LINHA_EXEC) $(T2_EXEC) $(T1_OBJS) $(T1_LINHA_OBJS) $(T2_OBJS)
