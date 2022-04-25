@@ -1,0 +1,11 @@
+Vinícius Maurício Ribeiro GRR20203911
+Gustavo Silveira Frehse GRR20203927
+
+TRABALHO 1 ICC
+Módulos:
+ - main.c: função principal.
+ - interface.h: funções de interface com o usuário.
+ - criticante.h: API para manipular a estrutura Criticante. Recebe uma string representando uma função e itera um método para achar um ponto crítico.
+ - sistema.h: API para resolver um Sistema Linear.
+ - utilidades.h: funções de utilidades gerais.
+

@@ -7,9 +7,7 @@ Gustavo Silveira Frehse GRR20203927
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include <likwid.h>
-// #include <matheval.h>
-#include "Rosenbrock.h"
+#include <matheval.h>
 
 #include "utils.h"
 
@@ -112,7 +110,7 @@ static void destruir_evaluator_hessiana(Criticante *c);
  */
 static void destruir_evaluator_gradiente(Criticante *c);
 
-/* 
+
 static int criar_evaluator_hessiana(Criticante *c)
 {
     c->hessiana = (void ***)criar_matriz(sizeof(void *), c->num_vars);
@@ -160,8 +158,8 @@ static void destruir_evaluator_gradiente(Criticante *c) {
 
     destruir_vetor(c->gradiente);
 }
-*/
-Criticante *criar_criticante(int n, char* f_str, int max_iters, double epsilon, double *X0, TipoCriticante tipo) {
+
+Criticante *criar_criticante(char* f_str, int max_iters, double epsilon, double *X0, TipoCriticante tipo) {
     Criticante *c = malloc(sizeof(Criticante));
     if (!c) return NULL;
     
@@ -175,32 +173,32 @@ Criticante *criar_criticante(int n, char* f_str, int max_iters, double epsilon, 
     c->info.acabou = false;
     
     c->f_str = f_str;
-    // c->f_evaluator = evaluator_create(f_str);
-    c->num_vars = n;
-    // evaluator_get_variables(c->f_evaluator, &c->f_vars, &c->num_vars);
+    c->f_evaluator = evaluator_create(f_str);
     
-    // if (criar_evaluator_gradiente(c) == -1) {
-    //     free(c);
-    //     return NULL;
-    // }
+    evaluator_get_variables(c->f_evaluator, &c->f_vars, &c->num_vars);
+    
+    if (criar_evaluator_gradiente(c) == -1) {
+        free(c);
+        return NULL;
+    }
 
-    // if (criar_evaluator_hessiana(c) == -1) {
-    //     destruir_evaluator_gradiente(c);
-    //     free(c);
-    //     return NULL;
-    // }
+    if (criar_evaluator_hessiana(c) == -1) {
+        destruir_evaluator_gradiente(c);
+        free(c);
+        return NULL;
+    }
     c->gradiente_evaluado = (double *) criar_vetor(sizeof(double), c->num_vars);
     if (!c->gradiente_evaluado) {
-        // destruir_evaluator_hessiana(c);
-        // destruir_evaluator_gradiente(c);
+        destruir_evaluator_hessiana(c);
+        destruir_evaluator_gradiente(c);
         free(c);
         return NULL;
     }
     c->hessiana_evaluada = (double **) criar_matriz(sizeof(double), c->num_vars);
     if (!c->hessiana_evaluada) {
         free(c->gradiente_evaluado);
-        // destruir_evaluator_hessiana(c);
-        // destruir_evaluator_gradiente(c);
+        destruir_evaluator_hessiana(c);
+        destruir_evaluator_gradiente(c);
         free(c);
         return NULL;
     }
@@ -209,8 +207,8 @@ Criticante *criar_criticante(int n, char* f_str, int max_iters, double epsilon, 
     if (!c->hessiana_evaluada) {
         free(c->hessiana_evaluada);
         free(c->gradiente_evaluado);
-        // destruir_evaluator_hessiana(c);
-        // destruir_evaluator_gradiente(c);
+        destruir_evaluator_hessiana(c);
+        destruir_evaluator_gradiente(c);
         free(c);
         return NULL;
     }
@@ -225,8 +223,8 @@ Criticante *criar_criticante(int n, char* f_str, int max_iters, double epsilon, 
     if (!c->newton) {
         free(c->hessiana_evaluada);
         free(c->gradiente_evaluado);
-        // destruir_evaluator_hessiana(c);
-        // destruir_evaluator_gradiente(c);
+        destruir_evaluator_hessiana(c);
+        destruir_evaluator_gradiente(c);
         free(c);
         return NULL;
     }
@@ -238,8 +236,8 @@ Criticante *criar_criticante(int n, char* f_str, int max_iters, double epsilon, 
                 destruir_sl(c->newton);
                 free(c->hessiana_evaluada);
                 free(c->gradiente_evaluado);
-                // destruir_evaluator_hessiana(c);
-                // destruir_evaluator_gradiente(c);
+                destruir_evaluator_hessiana(c);
+                destruir_evaluator_gradiente(c);
                 free(c);
                 return NULL;
             }
@@ -251,8 +249,8 @@ Criticante *criar_criticante(int n, char* f_str, int max_iters, double epsilon, 
                 destruir_sl(c->newton);
                 free(c->hessiana_evaluada);
                 free(c->gradiente_evaluado);
-                // destruir_evaluator_hessiana(c);
-                // destruir_evaluator_gradiente(c);
+                destruir_evaluator_hessiana(c);
+                destruir_evaluator_gradiente(c);
                 free(c);
                 return NULL;
             }
@@ -294,8 +292,8 @@ IterInfo iterar_criticante(Criticante *c) {
         break;
     }
 
-    // c->info.f_x = evaluator_evaluate(c->f_evaluator, c->num_vars, c->f_vars, c->X);
-    c->info.f_x = rosenbrock(c->X, c->num_vars);
+    c->info.f_x = evaluator_evaluate(c->f_evaluator, c->num_vars, c->f_vars, c->X);
+
     return c->info;
 }
 
@@ -321,12 +319,12 @@ void destruir_config(Criticante *crit) {
 
 void destruir_criticante(Criticante *crit) {
     
-    // evaluator_destroy(crit->f_evaluator);
+    evaluator_destroy(crit->f_evaluator);
 
-    // destruir_evaluator_gradiente(crit);
+    destruir_evaluator_gradiente(crit);
     destruir_vetor(crit->gradiente_evaluado);
 
-    // destruir_evaluator_hessiana(crit);
+    destruir_evaluator_hessiana(crit);
     destruir_matriz((void **)crit->hessiana_evaluada, crit->num_vars);
     
     destruir_vetor(crit->X);
@@ -339,15 +337,9 @@ void destruir_criticante(Criticante *crit) {
 
 static void evaluar_gradiente(Criticante *c) {
     double tempo = timestamp();
-
-    
-    /* 
     for (int i = 0; i < c->num_vars; i++)
         c->gradiente_evaluado[i] = -evaluator_evaluate(c->gradiente[i], c->num_vars, c->f_vars, c->X);
-     */
-    for (int i = 0; i < c->num_vars; i++)
-        c->gradiente_evaluado[i] = -rosenbrock_dx(i, c->X, c->num_vars);
-
+    
     tempo = timestamp() - tempo;
     c->info.tempo_derivadas += tempo;
 }
@@ -355,19 +347,11 @@ static void evaluar_gradiente(Criticante *c) {
 static void evaluar_hessiana(Criticante *c) {
     double tempo = timestamp();
 
-    /* for (int i = 0; i < c->num_vars; i++)
-    {
-        for (int j = 0; j < c->num_vars; j++)
-        {
-            c->hessiana_evaluada[i][j] = evaluator_evaluate(c->hessiana[i][j], c->num_vars, c->f_vars, c->X);
-        }
-    }
-    */
     for (int i = 0; i < c->num_vars; i++)
     {
         for (int j = 0; j < c->num_vars; j++)
         {
-            c->hessiana_evaluada[i][j] = rosenbrock_dxdy(i, j, c->X, c->num_vars);
+            c->hessiana_evaluada[i][j] = evaluator_evaluate(c->hessiana[i][j], c->num_vars, c->f_vars, c->X);
         }
     }
 
@@ -376,15 +360,11 @@ static void evaluar_hessiana(Criticante *c) {
 }
 
 static IterInfo iterar_padrao(Criticante *c) {
-    LIKWID_MARKER_START("newton-padrao-total");
-
     double tempo_total, tempo_grad, tempo_hess, tempo_SL;
 
     tempo_total = timestamp();
 
-    LIKWID_MARKER_START("newton-padrao-gradiente");
     evaluar_gradiente(c);
-    LIKWID_MARKER_STOP("newton-padrao-gradiente");
 
     if (norma(c->gradiente_evaluado, c->num_vars) < c->epsilon) {
         c->info.acabou = true;
@@ -392,23 +372,18 @@ static IterInfo iterar_padrao(Criticante *c) {
         tempo_total = timestamp() - tempo_total;
         c->info.tempo_total += tempo_total;
         
-        LIKWID_MARKER_STOP("newton-padrao-total");
         return c->info;
     }
 
-    LIKWID_MARKER_START("newton-padrao-hessiana");
     evaluar_hessiana(c);
-    LIKWID_MARKER_STOP("newton-padrao-hessiana");
 
-    LIKWID_MARKER_START("newton-padrao-sl");
     tempo_SL = timestamp();
-
+    
     criar_sl(c->newton, c->hessiana_evaluada, c->gradiente_evaluado);
     resolver_sl_eliminacao_gauss(c->newton);
 
     tempo_SL = timestamp() - tempo_SL;
     c->info.tempo_SL += tempo_SL;
-    LIKWID_MARKER_STOP("newton-padrao-sl");
     
     double *delta = solucao_sl(c->newton);
     if(!delta) {
@@ -426,14 +401,12 @@ static IterInfo iterar_padrao(Criticante *c) {
         tempo_total = timestamp() - tempo_total;
         c->info.tempo_total += tempo_total;
         
-        LIKWID_MARKER_STOP("newton-padrao-total");
         return c->info;
     }
 
     tempo_total = timestamp() - tempo_total;
     c->info.tempo_total += tempo_total;
 
-    LIKWID_MARKER_STOP("newton-padrao-total");
     return c->info;
 }
 
@@ -496,30 +469,22 @@ static IterInfo iterar_modificado(Criticante *c) {
 }
 
 static IterInfo iterar_inexato(Criticante *c) {
-    LIKWID_MARKER_START("newton-inexato-total");
-
     double tempo_total, tempo_grad, tempo_hess, tempo_SL;
 
     tempo_total = timestamp();
     
-    LIKWID_MARKER_START("newton-inexato-gradiente");
     evaluar_gradiente(c);
-    LIKWID_MARKER_STOP("newton-inexato-gradiente");
 
     if (norma(c->gradiente_evaluado, c->num_vars) < c->epsilon) {
         c->info.acabou = true;
         tempo_total = timestamp() - tempo_total;
         c->info.tempo_total += tempo_total;
 
-        LIKWID_MARKER_STOP("newton-inexato-total");
         return c->info;
     }
 
-    LIKWID_MARKER_START("newton-inexato-hessiana");
     evaluar_hessiana(c);
-    LIKWID_MARKER_STOP("newton-inexato-hessiana");
     
-    LIKWID_MARKER_START("newton-inexato-sl");
     tempo_SL = timestamp();
 
     criar_sl(c->newton, c->hessiana_evaluada, c->gradiente_evaluado);
@@ -528,7 +493,6 @@ static IterInfo iterar_inexato(Criticante *c) {
 
     tempo_SL = timestamp() - tempo_SL;
     c->info.tempo_SL += tempo_SL;
-    LIKWID_MARKER_STOP("newton-inexato-sl");
 
     double *delta = solucao_sl(c->newton);
     if(!delta) {
@@ -544,14 +508,12 @@ static IterInfo iterar_inexato(Criticante *c) {
         tempo_total = timestamp() - tempo_total;
         c->info.tempo_total += tempo_total;
 
-        LIKWID_MARKER_STOP("newton-inexato-total");
         return c->info;
     }
-
+    
     tempo_total = timestamp() - tempo_total;
     c->info.tempo_total += tempo_total;
     
-    LIKWID_MARKER_STOP("newton-inexato-total");
     return c->info;
 }
 
