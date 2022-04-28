@@ -171,8 +171,11 @@ static int retrossubs(double **M, double *X, double *b, int n) {
     for (int i = n - 1; i >=0; --i) {
         X[i] = b[i];
 
-        for (int j = i + 1; j < n; j++)
-            X[i] -= M[i][j] * X[j];
+	double sub = 0.0;
+	for (int j = i + 1; j < n; j++) {
+            sub += M[i][j] * X[j];
+	}
+	X[i] -= sub;
 
         if (fabs(M[i][i]) < EPSILON_ZERO)
             return -1;
@@ -333,13 +336,15 @@ void resolver_sl_gauss_seidel(SistemaLinear *sl, ConfigGaussSeidel *s) {
             s->X_old[i] = sl->X[i];
             sl->X[i] = sl->b[i];
 
+			double soma = 0.0;
             for (int j = 0; j < i; j++) {
-                sl->X[i] -= sl->M[i][j] * sl->X[j];
+                soma += sl->M[i][j] * sl->X[j];
             }
 
             for (int j = i + 1; j < sl->n; j++) {
-                sl->X[i] -= sl->M[i][j] * sl->X[j];
+                soma += sl->M[i][j] * sl->X[j];
             }
+			sl->X[i] -= soma;
             
             sl->X[i] /= sl->M[i][i];
             

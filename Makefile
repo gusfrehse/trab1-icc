@@ -1,6 +1,6 @@
 CC		= gcc
-CFLAGS	= -std=gnu17 -mavx -march=native
-LFLAGS	= -lm
+CFLAGS	= -std=gnu17 -O2 -march=native -ftree-vectorize -mavx2 -ffast-math -fopt-info-vec-all
+LFLAGS	= -lm -g
 
 PROFILING_CFLAGS	:= $(CFLAGS) -O0 -pg -fno-inline
 PROFILING_LFLAGS	:= $(LFLAGS)
