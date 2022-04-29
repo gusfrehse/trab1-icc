@@ -5,6 +5,8 @@ Gustavo Silveira Frehse GRR20203927
 #ifndef SISTEMA_H
 #define SISTEMA_H
 
+#include "utilidades.h"
+
 #define MAX_ITERS_GAUSS_SEIDEL 50
 
 /**
@@ -40,7 +42,7 @@ SistemaLinear* alocar_sl(int n);
  * @param M A matriz de coeficientes, de tamanho nxn.
  * @param b Termos independentes do sistema linear, de tamanho n.
  */
-void criar_sl(SistemaLinear *sl, double** M, double *b);
+void criar_sl(SistemaLinear *sl, MatrizOptDouble M, double *b);
 
 /**
  * @brief Muda a matriz de coeficientes de um SistemaLinear.

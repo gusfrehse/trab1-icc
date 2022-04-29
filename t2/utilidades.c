@@ -109,3 +109,23 @@ void somar_vetor(double *dst, double *src, int n) {
     for (int i = 0; i < n; i++)
         dst[i] += src[i];
 }
+
+inline MatrizOpt criar_matriz_otimizada(size_t size, int n) {
+    return malloc(size * n * n);
+}
+
+inline double acessar_matriz_otimizada_double(MatrizOptDouble M, int n, int i, int j) {
+    return M[i*n +j];
+}
+
+inline void destruir_matriz_otimizada(MatrizOpt M) {
+    free(M);
+}
+
+inline void copiar_matriz_otimizada_double(MatrizOptDouble dst, MatrizOptDouble src, int n) {
+    memcpy(dst, src, n * sizeof(double));
+}
+
+inline void linha_matriz_otimizada_double(MatrizOptDouble M, int n, int i) {
+    return M + i*n;
+}

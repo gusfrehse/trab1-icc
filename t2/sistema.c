@@ -9,6 +9,7 @@ Gustavo Silveira Frehse GRR20203927
 #include <math.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 // Epsilon para checagem de erro por divisão por 0.
 #define EPSILON_ZERO 1e-6
@@ -23,11 +24,11 @@ typedef struct SistemaLinear {
     double *b, *X;
 
     union {
-        double **U;
-        double **M;
+        MatrizOptDouble U;
+        MatrizOptDouble M;
     };
     
-    double **L;
+    MatrizOptDouble L;
     
     bool ocorreu_erro;
 } SistemaLinear;
@@ -69,7 +70,7 @@ static int triangularizar(SistemaLinear *sl);
  * @param n Tamanho do sistema
  * @return int Se ocorrer algum erro retorna -1. Caso contrário retorna 0.
  */
-static int retrossubs(double **M, double *X, double *b, int n);
+static int retrossubs(MatrizOptDouble M, double *X, double *b, int n);
 
 /**
  * @brief Troca duas linhas de um sistema linear.
@@ -109,7 +110,7 @@ static int fatorar_LU(SistemaLinear *sl, ConfigLU *s);
  * @param n Tamanho do sistema
  * @return int 
  */
-static int retrossubs_L(double **M, double *Y, double *b, int n);
+static int retrossubs_L(MatrizOptDouble M, double *Y, double *b, int n);
 
 /**
  * @brief Troca linhas de um sistema linear fatorado.
@@ -148,7 +149,7 @@ SistemaLinear* alocar_sl(int n) {
         free(sl);
         return NULL;
     }
-    sl->M = (double**) criar_matriz(sizeof(double), n);
+    sl->M = (double**) criar_matriz_otimizada(sizeof(double), n);
     if(!sl->M) {
         free(sl->X);
         free(sl->b);
@@ -162,25 +163,25 @@ SistemaLinear* alocar_sl(int n) {
     return sl;
 }
 
-void criar_sl(SistemaLinear *sl, double** M, double *b) {
-    copiar_matriz_double(sl->M, M, sl->n);
+void criar_sl(SistemaLinear *sl, MatrizOptDouble M, double *b) {
+    copiar_matriz_otimizada_double(sl->M, M, sl->n);
     copiar_vetor_double(sl->b, b, sl->n);
 }
 
-static int retrossubs(double **M, double *X, double *b, int n) {
+static int retrossubs(MatrizOptDouble M, double *X, double *b, int n) {
     for (int i = n - 1; i >=0; --i) {
         X[i] = b[i];
 
 	double sub = 0.0;
 	for (int j = i + 1; j < n; j++) {
-            sub += M[i][j] * X[j];
+        sub += EM(M, n, i, j) * X[j];
 	}
 	X[i] -= sub;
 
-        if (fabs(M[i][i]) < EPSILON_ZERO)
+        if (fabs(EM(M, n, i, i)) < EPSILON_ZERO)
             return -1;
             
-        X[i] /= M[i][i];
+        X[i] /= EM(M, n, i, i);
     }
     
     return 0;
@@ -190,7 +191,7 @@ static int encontra_max(SistemaLinear *sl, int coluna) {
     int max = coluna;
 
     for (int i = coluna; i < sl->n; i++) {
-        if (fabs(sl->M[i][coluna]) > fabs(sl->M[max][coluna]))
+        if (fabs(EM(sl->M, sl->n, i, coluna)) > fabs(EM(sl->M, sl->n, max, coluna)))
             max = i;
     }
 
@@ -198,9 +199,11 @@ static int encontra_max(SistemaLinear *sl, int coluna) {
 }
 
 static void troca_linha(SistemaLinear *sl, int linha_a, int linha_b) {
-    double *tmp = sl->M[linha_a];
-    sl->M[linha_a] = sl->M[linha_b];
-    sl->M[linha_b] = tmp;
+    
+    double tmp[sl->n];
+    memcpy(tmp, EM_LINHA(sl->M, sl->n, linha_a), sl->n * sizeof(double));
+    memcpy(EM_LINHA(sl->M, sl->n, linha_a), EM_LINHA(sl->M, sl->n, linha_b), sl->n * sizeof(double));
+    memcpy(EM_LINHA(sl->M, sl->n, linha_b), tmp, sl->n * sizeof(double));
 
     double tmp2 = sl->b[linha_a];
     sl->b[linha_a] = sl->b[linha_b];

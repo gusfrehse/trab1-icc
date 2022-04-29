@@ -8,6 +8,16 @@ Gustavo Silveira Frehse GRR20203927
 #include <stddef.h>
 #include <stdio.h>
 
+typedef void*   MatrizOpt;
+typedef double* MatrizOptDouble;
+
+/**
+ * @brief Alias para acessar_matriz_otimizada_double()
+ * 
+ */
+#define EM(M, n, i, j) acessar_matriz_otimizada_double(M, n, i, j)
+
+#define EM_LINHA(M, n, i) linha_matriz_otimizada_double(M, n , i)
 
 /**
  * @brief Printa o valor de uma variável da tela. Utilizada para debug
@@ -38,7 +48,7 @@ void print_matriz(double **M, int tam);
  * @brief Criam matriz nxn
  * 
  * @param size tamanho em bytes das células
- * @param n dimensã da matriz
+ * @param n dimensão da matriz
  * @return void** 
  */
 void **criar_matriz(size_t size, int n);
@@ -102,5 +112,44 @@ void somar_vetor(double *dst, double *src, int n);
  * @return double 
  */
 double norma(double *X, int n);
+
+/**
+ * @brief Cria matriz nxn alocada como um vetor
+ * 
+ * @param size tamanho em bytes das células
+ * @param n dimensão da matriz
+ * @return MatrizOpt matriz otimizada. NULL em caso de erro
+ */
+inline MatrizOpt criar_matriz_otimizada(size_t size, int n);
+
+/**
+ * @brief Acessa uma matriz de doubles criada por criar_matriz_otimizada()
+ * 
+ * @param M matriz otimizada
+ * @param n dimensão da matriz
+ * @param i linha
+ * @param j coluna
+ * @return double M[i][j]
+ */
+inline double acessar_matriz_otimizada_double(MatrizOptDouble M, int n, int i, int j);
+
+/**
+ * @brief Libera da memória matriz criada por criar_matriz_otimizada()
+ * 
+ * @param M matriz otimizada
+ */
+inline void destruir_matriz_otimizada(MatrizOpt M);
+
+/**
+ * @brief Copia elementos de uma matriz otimizada de double nxn para outra matriz otimizadade double nxn
+ * 
+ * @param dst Destino
+ * @param src Fonte
+ * @param n Dimensão da matriz
+ */
+inline void copiar_matriz_otimizada_double(MatrizOptDouble dst, MatrizOptDouble src, int n);
+
+inline double* linha_matriz_otimizada_double(MatrizOptDouble M, int n, int i);
+
 
 #endif
