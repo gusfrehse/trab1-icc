@@ -99,7 +99,7 @@ static int encontra_max(SistemaLinear *sl, int coluna);
  * @param s Configurações do Algoritmo Fatoração LU
  * @return int 
  */
-static int fatorar_LU(SistemaLinear *sl, ConfigLU *s);
+//static int fatorar_LU(SistemaLinear *sl, ConfigLU *s);
 
 /**
  * @brief Realiza a retrosubstituição em uma matriz triangular inferior.
@@ -149,7 +149,7 @@ SistemaLinear* alocar_sl(int n) {
         free(sl);
         return NULL;
     }
-    sl->M = (double**) criar_matriz_otimizada(sizeof(double), n);
+    sl->M = (double*) criar_matriz_otimizada(sizeof(double), n);
     if(!sl->M) {
         free(sl->X);
         free(sl->b);
@@ -221,15 +221,15 @@ static int triangularizar(SistemaLinear *sl) {
 
         for (int k = i + 1; k < sl->n; ++k) {
             // TODO: checar divisao por zero
-            if (fabs(sl->M[i][i]) < EPSILON_ZERO)
+            if (fabs(EM(sl->M, sl->n, i, i)) < EPSILON_ZERO)
                 return -1;
 
-            double m = sl->M[k][i] / sl->M[i][i];
+            double m = EM(sl->M, sl->n, k, i) / EM(sl->M, sl->n, i, i);
 
-            sl->M[k][i] = 0.0;
+            EM(sl->M, sl->n, k, i) = 0.0;
 
             for (int j = i + 1; j < sl->n; ++j)
-                sl->M[k][j] -= sl->M[i][j] * m;
+                EM(sl->M, sl->n, k, j) -= EM(sl->M, sl->n, i, j) * m;
 
             sl->b[k] -= sl->b[i] * m;
         }
@@ -244,90 +244,90 @@ void resolver_sl_eliminacao_gauss(SistemaLinear *sl) {
     retrossubs(sl->M, sl->X, sl->b, sl->n);
 }
 
-static int retrossubs_L(double **M, double *Y, double *b, int n)
-{
-    for (int i = 0; i < n; ++i) {
-        Y[i] = b[i];
-
-        for (int j = i - 1; j >= 0; j--)
-            Y[i] -= M[i][j] * Y[j];
-
-        if (fabs(M[i][i]) < EPSILON_ZERO)
-            return -1;
-
-        Y[i] /= M[i][i];
-    }
-    
-    return 0;
-}
-
-static void troca_linha_LU(SistemaLinear *sl, ConfigLU *s, int linha_a, int linha_b) {
-    double *tmp = sl->U[linha_a];
-    sl->U[linha_a] = sl->U[linha_b];
-    sl->U[linha_b] = tmp;
-
-    tmp = sl->L[linha_a];
-    sl->L[linha_a] = sl->L[linha_b];
-    sl->L[linha_b] = tmp;
-
-    int tmp_2 = s->trocas[linha_a];
-    s->trocas[linha_a] = s->trocas[linha_b];
-    s->trocas[linha_b] = tmp_2;
-}
-
-static void aplicar_trocas_LU(SistemaLinear *sl, ConfigLU *s) {
-    double res[sl->n];
-
-    for (int i = 0; i < sl->n; i++)
-        res[i] = sl->b[s->trocas[i]];
-
-    copiar_vetor_double(sl->b, res, sl->n);
-}
-
-static int fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
-    
-    /* para cada linha a partir da primeira */
-    for (int i = 0; i < sl->n; ++i) {
-
-        int linha_pivo = encontra_max(sl, i);
-        
-        if (i != linha_pivo)
-            troca_linha_LU(sl, s, i, linha_pivo);
-            
-        sl->L[i][i] = 1.0f;
-
-        for (int k = i + 1; k < sl->n; ++k) {
-            if (fabs(sl->M[i][i]) < EPSILON_ZERO)
-                return -1;
-            
-
-            double m = sl->U[k][i] / sl->U[i][i];
-
-            sl->L[k][i] = m;
-            sl->U[k][i] = 0.0;
-
-            for (int j = i + 1; j < sl->n; ++j)
-                sl->U[k][j] -= sl->U[i][j] * m;
-        }
-    }
-    
-    return 0;
-}
-
-void resolver_sl_LU(SistemaLinear *sl, ConfigLU *s) {
-    aplicar_trocas_LU(sl, s);
-    
-    retrossubs_L(sl->L, sl->X, sl->b, sl->n);
-    retrossubs(sl->U, sl->X, sl->X, sl->n);
-}
+//static int retrossubs_L(MatrizOptDouble M, double *Y, double *b, int n)
+//{
+//    for (int i = 0; i < n; ++i) {
+//        Y[i] = b[i];
+//
+//        for (int j = i - 1; j >= 0; j--)
+//            Y[i] -= M[i][j] * Y[j];
+//
+//        if (fabs(M[i][i]) < EPSILON_ZERO)
+//            return -1;
+//
+//        Y[i] /= M[i][i];
+//    }
+//    
+//    return 0;
+//}
+//
+//static void troca_linha_LU(SistemaLinear *sl, ConfigLU *s, int linha_a, int linha_b) {
+//    double *tmp = sl->U[linha_a];
+//    sl->U[linha_a] = sl->U[linha_b];
+//    sl->U[linha_b] = tmp;
+//
+//    tmp = sl->L[linha_a];
+//    sl->L[linha_a] = sl->L[linha_b];
+//    sl->L[linha_b] = tmp;
+//
+//    int tmp_2 = s->trocas[linha_a];
+//    s->trocas[linha_a] = s->trocas[linha_b];
+//    s->trocas[linha_b] = tmp_2;
+//}
+//
+//static void aplicar_trocas_LU(SistemaLinear *sl, ConfigLU *s) {
+//    double res[sl->n];
+//
+//    for (int i = 0; i < sl->n; i++)
+//        res[i] = sl->b[s->trocas[i]];
+//
+//    copiar_vetor_double(sl->b, res, sl->n);
+//}
+//
+//static int fatorar_LU(SistemaLinear *sl, ConfigLU *s) {
+//    
+//    /* para cada linha a partir da primeira */
+//    for (int i = 0; i < sl->n; ++i) {
+//
+//        int linha_pivo = encontra_max(sl, i);
+//        
+//        if (i != linha_pivo)
+//            troca_linha_LU(sl, s, i, linha_pivo);
+//            
+//        sl->L[i][i] = 1.0f;
+//
+//        for (int k = i + 1; k < sl->n; ++k) {
+//            if (fabs(sl->M[i][i]) < EPSILON_ZERO)
+//                return -1;
+//            
+//
+//            double m = sl->U[k][i] / sl->U[i][i];
+//
+//            sl->L[k][i] = m;
+//            sl->U[k][i] = 0.0;
+//
+//            for (int j = i + 1; j < sl->n; ++j)
+//                sl->U[k][j] -= sl->U[i][j] * m;
+//        }
+//    }
+//    
+//    return 0;
+//}
+//
+//void resolver_sl_LU(SistemaLinear *sl, ConfigLU *s) {
+//    aplicar_trocas_LU(sl, s);
+//    
+//    retrossubs_L(sl->L, sl->X, sl->b, sl->n);
+//    retrossubs(sl->U, sl->X, sl->X, sl->n);
+//}
 
 void destruir_sl(SistemaLinear *sl) {
-    destruir_matriz((void **)sl->M, sl->n);
+    destruir_matriz_otimizada((MatrizOptDouble)sl->M);
     destruir_vetor(sl->b);
     destruir_vetor(sl->X);
 
     if(sl->L)
-        destruir_matriz((void **)sl->L, sl->n);
+        destruir_matriz_otimizada((MatrizOptDouble)sl->L);
 
     free(sl);
 }
@@ -341,15 +341,16 @@ void resolver_sl_gauss_seidel(SistemaLinear *sl, ConfigGaussSeidel *s) {
 
 			double soma = 0.0;
             for (int j = 0; j < i; j++) {
-                soma += sl->M[i][j] * sl->X[j];
+                soma += EM(sl->M, sl->n, i, j) * sl->X[j];
             }
 
             for (int j = i + 1; j < sl->n; j++) {
-                soma += sl->M[i][j] * sl->X[j];
+                soma += EM(sl->M, sl->n, i, j) * sl->X[j];
             }
+
 			sl->X[i] -= soma;
             
-            sl->X[i] /= sl->M[i][i];
+            sl->X[i] /= EM(sl->M, sl->n, i, i);
             
             s->delta[i] = sl->X[i] - s->X_old[i];
         }
@@ -360,33 +361,33 @@ void resolver_sl_gauss_seidel(SistemaLinear *sl, ConfigGaussSeidel *s) {
     }
 }
 
-ConfigLU *alocar_config_LU(SistemaLinear *sl) {
-    ConfigLU *config = malloc(sizeof(ConfigLU));
-    if(!config) return NULL;
-
-    config->trocas = criar_vetor(sizeof(double), sl->n);
-    if(!config->trocas) {
-        free(config);
-        return NULL;
-    }
-
-    sl->L = (double **) criar_matriz(sizeof(double), sl->n);
-    if(!sl->L) {
-        free(config->trocas);
-        free(config);
-        return NULL;
-    }
-
-    return config;
-}
-
-void criar_config_LU(ConfigLU *config, SistemaLinear *sl) {
-
-    for (int i = 0; i < sl->n; i++)
-        config->trocas[i] = i;
-
-    fatorar_LU(sl, config);
-}
+//ConfigLU *alocar_config_LU(SistemaLinear *sl) {
+//    ConfigLU *config = malloc(sizeof(ConfigLU));
+//    if(!config) return NULL;
+//
+//    config->trocas = criar_vetor(sizeof(double), sl->n);
+//    if(!config->trocas) {
+//        free(config);
+//        return NULL;
+//    }
+//
+//    sl->L = (double *) criar_matriz_otimizada(sizeof(double), sl->n);
+//    if(!sl->L) {
+//        free(config->trocas);
+//        free(config);
+//        return NULL;
+//    }
+//
+//    return config;
+//}
+//
+//void criar_config_LU(ConfigLU *config, SistemaLinear *sl) {
+//
+//    for (int i = 0; i < sl->n; i++)
+//        config->trocas[i] = i;
+//
+//    fatorar_LU(sl, config);
+//}
 
 ConfigGaussSeidel *alocar_config_gauss_seidel(SistemaLinear *sl) {
     ConfigGaussSeidel *config = malloc(sizeof(ConfigGaussSeidel));
@@ -421,8 +422,8 @@ void destruir_config_LU(ConfigLU *s) {
     free(s);
 }
 
-void setar_matriz_sl(SistemaLinear *sl, double **M) {
-    copiar_matriz_double(sl->M, M, sl->n);
+void setar_matriz_sl(SistemaLinear *sl, double *M) {
+    copiar_matriz_otimizada_double(sl->M, M, sl->n);
 }
 
 void setar_termos_independentes_sl(SistemaLinear *sl, double *b) {

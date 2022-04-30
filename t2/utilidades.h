@@ -12,10 +12,10 @@ typedef void*   MatrizOpt;
 typedef double* MatrizOptDouble;
 
 /**
- * @brief Alias para acessar_matriz_otimizada_double()
+ * @brief Acesso ao elemento m_ij da matriz M
  * 
  */
-#define EM(M, n, i, j) acessar_matriz_otimizada_double(M, n, i, j)
+#define EM(M, n, i, j) M[j + i * n]
 
 #define EM_LINHA(M, n, i) linha_matriz_otimizada_double(M, n , i)
 
@@ -120,25 +120,15 @@ double norma(double *X, int n);
  * @param n dimensão da matriz
  * @return MatrizOpt matriz otimizada. NULL em caso de erro
  */
-inline MatrizOpt criar_matriz_otimizada(size_t size, int n);
+MatrizOpt criar_matriz_otimizada(size_t size, int n);
 
-/**
- * @brief Acessa uma matriz de doubles criada por criar_matriz_otimizada()
- * 
- * @param M matriz otimizada
- * @param n dimensão da matriz
- * @param i linha
- * @param j coluna
- * @return double M[i][j]
- */
-inline double acessar_matriz_otimizada_double(MatrizOptDouble M, int n, int i, int j);
 
 /**
  * @brief Libera da memória matriz criada por criar_matriz_otimizada()
  * 
  * @param M matriz otimizada
  */
-inline void destruir_matriz_otimizada(MatrizOpt M);
+void destruir_matriz_otimizada(MatrizOpt M);
 
 /**
  * @brief Copia elementos de uma matriz otimizada de double nxn para outra matriz otimizadade double nxn
@@ -147,9 +137,9 @@ inline void destruir_matriz_otimizada(MatrizOpt M);
  * @param src Fonte
  * @param n Dimensão da matriz
  */
-inline void copiar_matriz_otimizada_double(MatrizOptDouble dst, MatrizOptDouble src, int n);
+void copiar_matriz_otimizada_double(MatrizOptDouble dst, MatrizOptDouble src, int n);
 
-inline double* linha_matriz_otimizada_double(MatrizOptDouble M, int n, int i);
+double* linha_matriz_otimizada_double(MatrizOptDouble M, int n, int i);
 
 
 #endif

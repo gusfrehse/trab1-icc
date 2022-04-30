@@ -114,18 +114,14 @@ inline MatrizOpt criar_matriz_otimizada(size_t size, int n) {
     return malloc(size * n * n);
 }
 
-inline double acessar_matriz_otimizada_double(MatrizOptDouble M, int n, int i, int j) {
-    return M[i*n +j];
-}
-
 inline void destruir_matriz_otimizada(MatrizOpt M) {
     free(M);
 }
 
 inline void copiar_matriz_otimizada_double(MatrizOptDouble dst, MatrizOptDouble src, int n) {
-    memcpy(dst, src, n * sizeof(double));
+    memcpy(dst, src, n * n * sizeof(double));
 }
 
-inline void linha_matriz_otimizada_double(MatrizOptDouble M, int n, int i) {
+inline double* linha_matriz_otimizada_double(MatrizOptDouble M, int n, int i) {
     return M + i*n;
 }

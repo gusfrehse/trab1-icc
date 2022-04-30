@@ -50,7 +50,7 @@ void criar_sl(SistemaLinear *sl, MatrizOptDouble M, double *b);
  * @param sl Um SistemaLinear já alocado.
  * @param M A matriz de coeficientes, de tamanho nxn.
  */
-void setar_matriz_sl(SistemaLinear *sl, double **M);
+void setar_matriz_sl(SistemaLinear *sl, double *M);
 
 /**
  * @brief Muda os termos independentes de um SistemaLinear.
