@@ -41,8 +41,6 @@ t1lp: t1-linha-profiling
 t1-linha-profiling: CFLAGS = $(PROFILING_CFLAGS)
 t1-linha-profiling: LFLAGS = $(PROFILING_LFLAGS)
 t1-linha-profiling: $(T1_LINHA_EXEC)
-	./gera_rosenbrock_simples.sh | ./$(T1_LINHA_EXEC)
-	gprof ./$(T1_LINHA_EXEC) gmon.out
 
 t1ll: t1-linha-likwid
 
@@ -61,8 +59,6 @@ t2p: t2-profiling
 t2-profiling: CFLAGS = $(PROFILING_CFLAGS)
 t2-profiling: LFLAGS = $(PROFILING_LFLAGS)
 t2-profiling: $(T2_EXEC)
-	./gera_rosenbrock_simples.sh | ./$(T2_EXEC)
-	gprof ./$(T2_EXEC) gmon.out
 
 t2l: t2-likwid
 
