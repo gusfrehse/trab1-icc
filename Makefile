@@ -2,6 +2,8 @@ CC		= gcc
 CFLAGS	= -std=gnu17 -march=native -ftree-vectorize -mavx2 -ffast-math -fopt-info-vec-all
 LFLAGS	= -lm -g
 
+NORMAL_CFLAGS           := $(CFLAGS) -O3
+
 PROFILING_CFLAGS	:= $(CFLAGS) -O0 -pg -fno-inline
 PROFILING_LFLAGS	:= $(LFLAGS)
 
@@ -26,6 +28,7 @@ T1_LINHA_OBJS	= $(addprefix $(T1_LINHA_DIR)/, $(OBJS) Rosenbrock.o)
 
 .PHONY: clean graph t1-linha t1-linha-profiling t1-linha-likwid t1l t1lp t1ll t2-profiling t2-likwid t2 t2p t2l
 
+t1l: CFLAGS = $(NORMAL_CFLAGS)
 t1l: t1-linha
 
 t1-linha: $(T1_LINHA_EXEC)
@@ -47,6 +50,7 @@ t1-linha-likwid: CFLAGS = $(LIKWID_CFLAGS)
 t1-linha-likwid: LFLAGS = $(LIKWID_LFLAGS)
 t1-linha-likwid: $(T1_LINHA_EXEC)
 
+t2: CFLAGS = $(NORMAL_CFLAGS)
 t2: $(T2_EXEC)
 
 $(T2_EXEC): $(T2_OBJS)
