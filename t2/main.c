@@ -17,7 +17,7 @@ Gustavo Silveira Frehse GRR20203927
 
 #include "interface.h"
 #include "criticante.h"
-// #include "utilidades.h" // Remover isso
+#include "utilidades.h" // Remover isso
 
 int main(int argc, char **argv) {
 
@@ -76,14 +76,14 @@ int main(int argc, char **argv) {
         escrever_tempos(outfile, info_padrao, info_modificado, info_inexato);
 
         // TODO: retirar printfs
-        // printf("\nVetor X padrao:\n");
-        // print_vetor_double(solucao_criticante(crit_padrao), n);
+        printf("\nVetor X padrao:\n");
+        print_vetor_double(solucao_criticante(crit_padrao), n);
 
         // printf("\nVetor X modificado:\n");
         // print_vetor_double(solucao_criticante(crit_modificado), n);
 
-        // printf("\nVetor X inexato:\n");
-        // print_vetor_double(solucao_criticante(crit_inexato), n);
+        printf("\nVetor X inexato:\n");
+        print_vetor_double(solucao_criticante(crit_inexato), n);
 
         free(X0);
         free(f_str);

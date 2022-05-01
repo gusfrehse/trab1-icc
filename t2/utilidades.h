@@ -8,8 +8,10 @@ Gustavo Silveira Frehse GRR20203927
 #include <stddef.h>
 #include <stdio.h>
 
-typedef void*   MatrizOpt;
-typedef double* MatrizOptDouble;
+typedef struct MatrizOptDouble {
+    int n;
+    double *a, *d, *c;
+} MatrizOptDouble;
 
 /**
  * @brief Acesso ao elemento m_ij da matriz M
@@ -120,7 +122,7 @@ double norma(double *X, int n);
  * @param n dimensão da matriz
  * @return MatrizOpt matriz otimizada. NULL em caso de erro
  */
-MatrizOpt criar_matriz_otimizada(size_t size, int n);
+MatrizOptDouble *criar_matriz_otimizada(int n);
 
 
 /**
@@ -128,7 +130,7 @@ MatrizOpt criar_matriz_otimizada(size_t size, int n);
  * 
  * @param M matriz otimizada
  */
-void destruir_matriz_otimizada(MatrizOpt M);
+void destruir_matriz_otimizada(MatrizOptDouble *M);
 
 /**
  * @brief Copia elementos de uma matriz otimizada de double nxn para outra matriz otimizadade double nxn
@@ -137,9 +139,6 @@ void destruir_matriz_otimizada(MatrizOpt M);
  * @param src Fonte
  * @param n Dimensão da matriz
  */
-void copiar_matriz_otimizada_double(MatrizOptDouble dst, MatrizOptDouble src, int n);
-
-double* linha_matriz_otimizada_double(MatrizOptDouble M, int n, int i);
-
+void copiar_matriz_otimizada(MatrizOptDouble *dst,MatrizOptDouble *src, int n);
 
 #endif

@@ -42,7 +42,7 @@ SistemaLinear* alocar_sl(int n);
  * @param M A matriz de coeficientes, de tamanho nxn.
  * @param b Termos independentes do sistema linear, de tamanho n.
  */
-void criar_sl(SistemaLinear *sl, MatrizOptDouble M, double *b);
+void criar_sl(SistemaLinear *sl, MatrizOptDouble *M, double *b);
 
 /**
  * @brief Muda a matriz de coeficientes de um SistemaLinear.
@@ -50,7 +50,7 @@ void criar_sl(SistemaLinear *sl, MatrizOptDouble M, double *b);
  * @param sl Um SistemaLinear já alocado.
  * @param M A matriz de coeficientes, de tamanho nxn.
  */
-void setar_matriz_sl(SistemaLinear *sl, double *M);
+// void setar_matriz_sl(SistemaLinear *sl, double *M);
 
 /**
  * @brief Muda os termos independentes de um SistemaLinear.
@@ -58,7 +58,7 @@ void setar_matriz_sl(SistemaLinear *sl, double *M);
  * @param sl Um SistemaLinear já alocado.
  * @param b Termos independentes do sistema linear, de tamanho n.
  */
-void setar_termos_independentes_sl(SistemaLinear *sl, double *b);
+// void setar_termos_independentes_sl(SistemaLinear *sl, double *b);
 
 /**
  * @brief Libera a memória de um SistemaLinear.

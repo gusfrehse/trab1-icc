@@ -36,7 +36,7 @@ typedef struct Criticante {
 
     //void *** hessiana;
     //void ** gradiente;
-    MatrizOptDouble hessiana_evaluada;
+    MatrizOptDouble *hessiana_evaluada;
     double * gradiente_evaluado;
     double * X;
 
@@ -206,7 +206,7 @@ Criticante *criar_criticante(int n, char* f_str, int max_iters, double epsilon, 
         free(c);
         return NULL;
     }
-    c->hessiana_evaluada = (double *) criar_matriz_otimizada(sizeof(double), c->num_vars);
+    c->hessiana_evaluada = criar_matriz_otimizada(c->num_vars);
     if (!c->hessiana_evaluada) {
         free(c->gradiente_evaluado);
         // destruir_evaluator_hessiana(c);
@@ -341,7 +341,7 @@ void destruir_criticante(Criticante *crit) {
     destruir_vetor(crit->gradiente_evaluado);
 
     // destruir_evaluator_hessiana(crit);
-    destruir_matriz_otimizada((MatrizOptDouble) crit->hessiana_evaluada);
+    destruir_matriz_otimizada(crit->hessiana_evaluada);
     
     destruir_vetor(crit->X);
     
@@ -377,13 +377,15 @@ static void evaluar_hessiana(Criticante *c) {
         }
     }
     */
-    for (int i = 0; i < c->num_vars; i++)
+    for (int i = 0; i < c->num_vars - 1; i++)
     {
-        for (int j = 0; j < c->num_vars; j++)
-        {
-            EM(c->hessiana_evaluada, c->num_vars, i, j) = rosenbrock_dxdy(i, j, c->X, c->num_vars);
-        }
+        c->hessiana_evaluada->a[i] = rosenbrock_dxdy(i + 1, i, c->X, c->num_vars);
+        c->hessiana_evaluada->d[i] = rosenbrock_dxdy(i, i, c->X, c->num_vars);
+        c->hessiana_evaluada->c[i] = rosenbrock_dxdy(i, i + 1, c->X, c->num_vars);
     }
+
+    int ponta = c->num_vars - 1;
+    c->hessiana_evaluada->d[ponta] = rosenbrock_dxdy(ponta, ponta, c->X, c->num_vars);
 
     tempo = timestamp() - tempo;
     c->info.tempo_derivadas += tempo;

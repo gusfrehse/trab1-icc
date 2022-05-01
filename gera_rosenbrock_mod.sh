@@ -9,6 +9,6 @@ done
 echo "0"
 for i in $(seq 1 $N)
 do
-	echo -n "1.01 "
+	echo -n "2.01 "
 done
 echo -e "\n0\n50\n"

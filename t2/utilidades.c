@@ -10,7 +10,6 @@ Gustavo Silveira Frehse GRR20203927
 #include <string.h>
 #include <math.h>
 
-
 void print_vetor_double(double v[], int tam)
 {
     printf("[");
@@ -110,18 +109,26 @@ void somar_vetor(double *dst, double *src, int n) {
         dst[i] += src[i];
 }
 
-inline MatrizOpt criar_matriz_otimizada(size_t size, int n) {
-    return malloc(size * n * n);
+MatrizOptDouble *criar_matriz_otimizada(int n) {
+    MatrizOptDouble *M = malloc(sizeof(MatrizOptDouble));
+
+    M->n = n;
+    M->a = malloc(n * sizeof(double));
+    M->d = malloc(n * sizeof(double));
+    M->c = malloc(n * sizeof(double));
+    
+    return M;
 }
 
-inline void destruir_matriz_otimizada(MatrizOpt M) {
+void destruir_matriz_otimizada(MatrizOptDouble *M) {
+    free(M->a);
+    free(M->d);
+    free(M->c);
     free(M);
 }
 
-inline void copiar_matriz_otimizada_double(MatrizOptDouble dst, MatrizOptDouble src, int n) {
-    memcpy(dst, src, n * n * sizeof(double));
-}
-
-inline double* linha_matriz_otimizada_double(MatrizOptDouble M, int n, int i) {
-    return M + i*n;
+void copiar_matriz_otimizada(MatrizOptDouble *dst, MatrizOptDouble *src, int n) {
+    memcpy(dst->a, src->a, n * sizeof(double));
+    memcpy(dst->d, src->d, n * sizeof(double));
+    memcpy(dst->c, src->c, n * sizeof(double));
 }
