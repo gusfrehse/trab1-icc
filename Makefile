@@ -1,6 +1,6 @@
 CC		= gcc
-CFLAGS	= -std=gnu17 -march=native -ftree-vectorize -mavx2 -ffast-math -fopt-info-vec-all
-LFLAGS	= -lm -g
+CFLAGS	= -std=gnu17 -march=native -ftree-vectorize -mavx2 -ffast-math
+LFLAGS	= -lm
 
 NORMAL_CFLAGS           := $(CFLAGS) -O3
 
