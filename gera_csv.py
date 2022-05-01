@@ -8,6 +8,7 @@ import sys
 
 ROSENBROCK_GENERATOR = "gera_rosenbrock_mod.sh"
 CORE = "3"
+PASTA_OUT = './graficos/'
 PROG_NORMAL = sys.argv[1]
 PROG_OTIMIZADO = sys.argv[2]
 
@@ -18,28 +19,12 @@ grupos = [ "CLOCK", "L3", "L2CACHE", "FLOPS_DP" ]
 
 
 def roda_e_gera_csv_do_likwid(n, prog, nome_arq, grupo_metrica):
-    cmd = "echo 'performance' > /sys/devices/system/cpu/cpufreq/policy3/scaling_governor"
-    ret = os.system(cmd)
-    if ret != 0:
-        print("ERROR: in \"" + cmd + "\"")
-        exit(1111)
-
     cmd = "./" + ROSENBROCK_GENERATOR + " " + str(n) + " | likwid-perfctr -C " + CORE + " -g " + grupo_metrica + " -m -o " + nome_arq + " ./" + prog + " > /dev/null 2>&1"
     print(cmd)
     ret = os.system(cmd)
     if ret != 0:
         print("ERROR: in \"" + cmd + "\"")
         exit(1234)
-
-    cmd = "echo 'powersave' > /sys/devices/system/cpu/cpufreq/policy3/scaling_governor"
-    ret = os.system(cmd)
-    if ret != 0:
-        print("ERROR: in \"" + cmd + "\"")
-        exit(1123)
-
-    # os.system("echo 'performance' > /sys/devices/system/cpu/cpufreq/policy3/scaling_governor")
-    # os.system("./" + ROSENBROCK_GENERATOR + " " + str(n) + " | likwid-perfctr -C " + CORE + " -g " + grupo_metrica + " -m -o " + nome_arq + " ./" + prog + " > /dev/null 2>&1")
-    # os.system("echo 'powersave' > /sys/devices/system/cpu/cpufreq/policy3/scaling_governor")
 
 def gera_dados_do_csv_do_likwid(reader, metrica, trecho):
     trecho_atual = ''
@@ -72,7 +57,7 @@ def update_graficos(n, grupo, metrica):
         otimizado_reader = list(csv.reader(of, delimiter=','))
 
         for trecho in trechos:
-            with open(grupo + '-' + trecho + '.csv', "a") as f:
+            with open(PASTA_OUT + grupo + '-' + trecho + '.csv', "a") as f:
                 dado_normal = gera_dados_do_csv_do_likwid(normal_reader, metrica, trecho)
                 dado_otimizado = gera_dados_do_csv_do_likwid(otimizado_reader, metrica, trecho)
                 linha = str(n) + ',' + dado_normal + ',' + dado_otimizado
