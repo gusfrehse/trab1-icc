@@ -70,14 +70,14 @@ def update_graficos(n, grupo, metrica):
 def reset_graficos():
     for grupo in grupos:
         for trecho in trechos:
-            nome = grupo + '-' + trecho + '.csv'
+            nome = PASTA_OUT + grupo + '-' + trecho + '.csv'
             if os.path.exists(nome):
                 os.remove(nome)
 
 def main():
     reset_graficos()
-    #ns = [10, 32, 50, 64, 100, 128, 200, 250, 256, 300, 400, 512, 600, 1000, 1024, 2000, 2048, 3000, 4096]
-    ns = [10, 32, 50, 64, 100, 128, 200, 250, 256]
+    ns = [10, 32, 50, 64, 100, 128, 200, 250, 256, 300, 400, 512, 600, 1000, 1024, 2000, 2048, 3000, 4096]
+    #ns = [10, 32, 50, 64, 100, 128, 200, 250, 256]
 
     for n in ns:
         print("n =", n)
