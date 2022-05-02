@@ -1,0 +1,36 @@
+Instruções
+----------
+
+O trabalho foi dividido em 3:
+ - t1 := trabalho 1 não modificado.
+ - t1-linha := trabalho 1 modificado para não utilizar a libmatheval.
+ - t2 := trabalho otimizado (modificação do t1-linha).
+
+Para cada um há 3 modos de compilação possíveis:
+ - <normal> : sem nada especial.
+ - profiling : com flags para usar o gprof.
+ - likwid : com flags para usar o likwid.
+
+Para gerar os gráficos
+    $ make graphics
+    $ ./gera_csv.py
+    $ gnuplot grafico.gnuplot
+
+Para compilar t1-linha:
+    $ make t1-linha
+
+Para compilar t1-linha para usar o likwid:
+    $ make t1-linha-likwid
+
+Para compilar t1-linha para usar o gprof:
+    $ make t1-linha-profiling
+
+Para compilar t2:
+    $ make t2
+
+Para compilar t2 para usar o likwid:
+    $ make t2-likwid
+
+Para compilar t2 para usar o gprof:
+    $ make t1-profiling
+
