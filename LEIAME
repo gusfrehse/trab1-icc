@@ -13,7 +13,7 @@ Para cada um há 3 modos de compilação possíveis:
 
 Para gerar os gráficos
     $ make graphics
-    $ ./gera_csv.py
+    $ ./gera_csv.py newtonPC_t1_linha newtonPC
     $ gnuplot grafico.gnuplot
 
 Para compilar t1-linha:

@@ -14,6 +14,7 @@ T2_DIR				= t2
 T1_DIR				= t1
 T1_LINHA_DIR		= t1_linha
 PROFILING_DIR		= profiling
+GRAPHICS_DIR		= graficos
 
 EXEC	= newtonPC
 OBJS	= main.o interface.o criticante.o sistema.o utils.o utilidades.o
@@ -66,8 +67,11 @@ t2-likwid: CFLAGS = $(LIKWID_CFLAGS)
 t2-likwid: LFLAGS = $(LIKWID_LFLAGS)
 t2-likwid: $(T2_EXEC)
 
-graphics: t1ll t2l
-	# ./gera_graficos.py $(T1_LINHA_EXEC) $(T2_EXEC)
+graphics: t1ll t2l | $(GRAPHICS_DIR)/
+
+
+$(GRAPHICS_DIR)/:
+	mkdir -p $@
 
 clean:
-	rm -rf $(T1_EXEC) $(T1_LINHA_EXEC) $(T2_EXEC) $(T1_OBJS) $(T1_LINHA_OBJS) $(T2_OBJS) gmon.out
+	rm -rf $(T1_EXEC) $(T1_LINHA_EXEC) $(T2_EXEC) $(T1_OBJS) $(T1_LINHA_OBJS) $(T2_OBJS)  *.csv gmon.out
